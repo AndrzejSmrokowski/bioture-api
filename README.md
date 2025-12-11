@@ -17,6 +17,11 @@ This project is configured to use the latest and greatest technologies available
 -   **ORM**: Doctrine ORM 3
 -   **Server**: Nginx + PHP-FPM (Debian-based for stability)
 
+## 📏 Architecture & Standards
+
+This project follows strict guidelines: **DDD**, **Hexagonal Architecture**, **EDA**, and **Zero Logic in Controllers**.
+See [AI_INSTRUCTIONS.md](AI_INSTRUCTIONS.md) for detailed rules on coding standards and Conventional Commits.
+
 ## 🛠 Quality Assurance & Tools
 
 We believe in "Hardcore Quality Assurance". The project comes pre-configured with:
