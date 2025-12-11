@@ -1,5 +1,7 @@
 # Bioture API
 
+![CI](https://github.com/AndrzejSmrokowski/bioture-api/actions/workflows/ci.yaml/badge.svg)
+
 ![Bioture](https://via.placeholder.com/800x200?text=Bioture+API+Project)
 
 Welcome to **Bioture API** - a bleeding-edge API project built with **Symfony 8.0** and **PHP 8.5**.
