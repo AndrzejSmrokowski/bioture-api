@@ -87,7 +87,7 @@ Once the server is running, you can access the API Platform documentation (Swagg
 
 -   `src/Entity`: Doctrine Entities (API Resources).
 -   `src/Controller`: Custom controllers (if needed outside API Platform).
--   `docker/`: Docker configuration files.
+-   `.docker/`: Docker configuration files.
 -   `tests/`: PHPUnit tests and Factories.
 
 ## 💡 Best Practices
