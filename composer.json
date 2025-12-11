@@ -48,6 +48,9 @@
         }
     },
     "require-dev": {
+        "deptrac/deptrac": "^3.0",
+        "friendsofphp/php-cs-fixer": "^3.91",
+        "qossmic/deptrac": "^2.0",
         "rector/rector": "^2.2",
         "symfony/maker-bundle": "^1.65",
         "zenstruck/foundry": "^2.8"
