@@ -17,24 +17,16 @@ class Exam
     #[ORM\Column]
     private ?int $id = null;
 
-    // np. "biologia-2025-maj-rozszerzona"
-    #[ORM\Column(length: 255, unique: true)]
-    private string $examId;
-
-    // np. maj 2025 – jak nie potrzebujesz, możesz ustawić null
-    #[ORM\Column(type: 'date_immutable', nullable: true)]
-    private ?\DateTimeImmutable $date = null;
-
-    #[ORM\OneToMany(mappedBy: 'exam', targetEntity: Task::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'exam', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $tasks;
 
     public function __construct(
-        string $examId,
-        ?\DateTimeImmutable $date = null,
+        #[ORM\Column(length: 255, unique: true)]
+        private string $examId,
+        #[ORM\Column(type: \Doctrine\DBAL\Types\Types::DATE_IMMUTABLE, nullable: true)]
+        private ?\DateTimeImmutable $date = null,
     ) {
-        $this->examId = $examId;
-        $this->date = $date;
         $this->tasks = new ArrayCollection();
     }
 
@@ -85,10 +77,8 @@ class Exam
 
     public function removeTask(Task $task): self
     {
-        if ($this->tasks->removeElement($task)) {
-            if ($task->getExam() === $this) {
-                $task->setExam(null);
-            }
+        if ($this->tasks->removeElement($task) && $task->getExam() === $this) {
+            $task->setExam(null);
         }
 
         return $this;

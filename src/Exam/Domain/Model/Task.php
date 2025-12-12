@@ -17,59 +17,37 @@ class Task
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Exam::class, inversedBy: 'tasks')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ?Exam $exam = null;
-
-    // nasze "id" z JSON-a, np. "1.1"
-    #[ORM\Column(length: 20)]
-    private string $code;
-
     // "Zadanie 1.1" z arkusza – opcjonalne
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $originalNumber = null;
 
-    // dział z biologii (enum)
-    #[ORM\Column(enumType: BiologySection::class)]
-    private BiologySection $section;
-
     // podrozdział / opis, np. "Chemizm życia – białka, struktura i denaturacja"
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::TEXT, nullable: true)]
     private ?string $topic = null;
 
-    #[ORM\Column(enumType: TaskType::class)]
-    private TaskType $type;
-
-    // max liczba punktów za zadanie
-    #[ORM\Column(type: 'smallint')]
-    private int $maxPoints = 1;
-
     // opis dla AI, jak sprawdzać odpowiedź
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::TEXT, nullable: true)]
     private ?string $aiDescription = null;
 
     // answerKey z JSON-a – trzymamy jako jsonb/json w bazie
-    #[ORM\Column(type: 'json', nullable: true)]
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::JSON, nullable: true)]
     private ?array $answerKey = null;
 
-    // kolejność w arkuszu (żeby sortować)
-    #[ORM\Column(type: 'smallint')]
-    private int $position = 0;
-
     public function __construct(
-        Exam $exam,
-        string $code,
-        TaskType $type,
-        BiologySection $section,
-        int $position,
-        int $maxPoints = 1
+        #[ORM\ManyToOne(targetEntity: Exam::class, inversedBy: 'tasks')]
+        #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+        private ?Exam $exam,
+        #[ORM\Column(length: 20)]
+        private string $code,
+        #[ORM\Column(enumType: TaskType::class)]
+        private TaskType $type,
+        #[ORM\Column(enumType: BiologySection::class)]
+        private BiologySection $section,
+        #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT)]
+        private int $position,
+        #[ORM\Column(type: \Doctrine\DBAL\Types\Types::SMALLINT)]
+        private int $maxPoints = 1
     ) {
-        $this->exam = $exam;
-        $this->code = $code;
-        $this->type = $type;
-        $this->section = $section;
-        $this->position = $position;
-        $this->maxPoints = $maxPoints;
     }
 
     public function getId(): ?int
