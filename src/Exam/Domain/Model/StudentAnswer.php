@@ -34,7 +34,6 @@ class StudentAnswer
         #[ORM\ManyToOne(targetEntity: ExamAttempt::class, inversedBy: 'answers')]
         #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
         private ExamAttempt $examAttempt,
-
         #[ORM\ManyToOne(targetEntity: Task::class)]
         #[ORM\JoinColumn(nullable: false)]
         #[Groups(['exam_attempt:read'])]

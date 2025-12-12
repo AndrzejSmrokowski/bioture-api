@@ -59,3 +59,17 @@ All commit messages must follow the [Conventional Commits](https://www.conventio
 -   `refactor(payment): move gateway logic to infrastructure layer`
 -   `docs(readme): add architecture overview`
 -   `style(user): apply cs-fixer rules`
+
+## 4. Quality Assurance & CI Strategy
+
+**CRITICAL RULE FOR AI ASSISTANTS:**
+Before commiting ANY code, you MUST ensure that it passes all CI checks to avoid breaking the build pipeline.
+
+1.  **Run CS Fixer**: `vendor/bin/php-cs-fixer fix --dry-run --diff --allow-risky=yes`
+    -   If errors are found, run without `--dry-run` to fix them automatically, or fix manually.
+2.  **Run Static Analysis**: `vendor/bin/phpstan analyse`
+    -   All errors must be resolved (Level 8 or max).
+3.  **Run Tests**: `vendor/bin/phpunit`
+    -   All unit and integration tests must pass.
+
+**Do not commit broken code.** If a check fails, fix it first.
