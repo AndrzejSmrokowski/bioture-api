@@ -12,10 +12,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'exam_attempt')]
 #[ApiResource(
+    normalizationContext: ['groups' => ['exam_attempt:read']],
     operations: [
         new GetCollection(),
         new Get(),
@@ -33,24 +35,30 @@ class ExamAttempt
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['exam_attempt:read'])]
     private ?int $id = null;
 
     #[ORM\Column(enumType: ExamAttemptStatus::class)]
+    #[Groups(['exam_attempt:read'])]
     private ExamAttemptStatus $status = ExamAttemptStatus::STARTED;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups(['exam_attempt:read'])]
     private \DateTimeImmutable $startedAt;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups(['exam_attempt:read'])]
     private ?\DateTimeImmutable $submittedAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups(['exam_attempt:read'])]
     private ?\DateTimeImmutable $checkedAt = null;
 
     /**
      * @var Collection<int, StudentAnswer>
      */
     #[ORM\OneToMany(targetEntity: StudentAnswer::class, mappedBy: 'examAttempt', cascade: ['persist', 'remove'])]
+    #[Groups(['exam_attempt:read'])]
     private Collection $answers;
 
     public function __construct(
