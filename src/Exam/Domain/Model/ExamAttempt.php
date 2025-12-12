@@ -3,7 +3,11 @@
 namespace Bioture\Exam\Domain\Model;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use Bioture\Exam\Domain\Model\Enum\ExamAttemptStatus;
+use Bioture\Exam\Infrastructure\ApiPlatform\State\ExamAttemptSubmitProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -11,7 +15,19 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'exam_attempt')]
-#[ApiResource]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+        new Post(),
+        new Post(
+            uriTemplate: '/exam_attempts/{id}/submit',
+            processor: ExamAttemptSubmitProcessor::class,
+            input: false,
+            name: 'submit_exam_attempt'
+        )
+    ]
+)]
 class ExamAttempt
 {
     #[ORM\Id]
