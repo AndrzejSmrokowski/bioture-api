@@ -2,29 +2,22 @@ parameters:
   paths:
     - ./src
   layers:
-    - name: Domain
+    - name: ExamDomain
       collectors:
         - type: directory
-          regex: src/Domain/.*
-    - name: Application
+          value: src/Exam/Domain/.*
+    - name: ExamInfrastructure
       collectors:
         - type: directory
-          regex: src/Application/.*
-    - name: Infrastructure
+          value: src/Exam/Infrastructure/.*
+    - name: SharedInfrastructure
       collectors:
         - type: directory
-          regex: src/Infrastructure/.*
-    - name: Interface
-      collectors:
-        - type: directory
-          regex: src/Interface/.*
+          value: src/Shared/Infrastructure/.*
   ruleset:
-    Domain: ~
-    Application:
-      - Domain
-    Infrastructure:
-      - Application
-      - Domain
-    Interface:
-      - Application
-      - Domain
+    ExamDomain:
+      - SharedInfrastructure
+    ExamInfrastructure:
+      - ExamDomain
+      - SharedInfrastructure
+    SharedInfrastructure: ~

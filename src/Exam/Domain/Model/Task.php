@@ -30,6 +30,9 @@ class Task
     private ?string $aiDescription = null;
 
     // answerKey z JSON-a – trzymamy jako jsonb/json w bazie
+    /**
+     * @var array<string, mixed>|null
+     */
     #[ORM\Column(type: \Doctrine\DBAL\Types\Types::JSON, nullable: true)]
     private ?array $answerKey = null;
 
@@ -143,11 +146,17 @@ class Task
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getAnswerKey(): ?array
     {
         return $this->answerKey;
     }
 
+    /**
+     * @param array<string, mixed>|null $answerKey
+     */
     public function setAnswerKey(?array $answerKey): self
     {
         $this->answerKey = $answerKey;

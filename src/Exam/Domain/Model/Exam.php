@@ -17,6 +17,9 @@ class Exam
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * @var Collection<int, Task>
+     */
     #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'exam', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $tasks;

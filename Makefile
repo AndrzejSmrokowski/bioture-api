@@ -29,3 +29,5 @@ deptrac:
 
 rector:
 	docker-compose exec app vendor/bin/rector process
+
+ci: cs-fix rector analyze deptrac test
