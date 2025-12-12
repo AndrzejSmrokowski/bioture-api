@@ -77,16 +77,14 @@ Once the server is running, you can access the API Platform documentation (Swagg
 
 -   **URL**: `http://localhost:8080/api/docs` (or check your `docker-compose` port mapping).
 
-### Example Resources
--   **Experiment**: A sample entity with validation and logic.
-    -   `POST /api/experiments`: Create a new experiment.
-    -   `GET /api/experiments`: List all experiments.
-
-
 ## 🏗 Project Structure
 
--   `src/Entity`: Doctrine Entities (API Resources).
--   `src/Controller`: Custom controllers (if needed outside API Platform).
+Reflecting our **DDD** approach, the code is organized by **Bounded Contexts** (Domains):
+
+-   `src/{Domain}/Domain/Model`: Entities, Enums, and Value Objects (The Core).
+-   `src/{Domain}/Domain/Service`: Domain Services containing business logic.
+-   `src/{Domain}/Infrastructure`: Implementation details (API Platform Resources, State Processors, Repositories).
+-   `src/Shared`: Common components shared across domains.
 -   `.docker/`: Docker configuration files.
 -   `tests/`: PHPUnit tests and Factories.
 
