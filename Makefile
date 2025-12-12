@@ -22,7 +22,7 @@ cs-fix:
 	docker-compose exec app vendor/bin/php-cs-fixer fix --allow-risky=yes
 
 analyze:
-	docker-compose exec app vendor/bin/phpstan analyse
+	docker-compose exec app vendor/bin/phpstan analyse --memory-limit=1G
 
 deptrac:
 	docker-compose exec app vendor/bin/deptrac

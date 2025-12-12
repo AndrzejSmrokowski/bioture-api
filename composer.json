@@ -50,6 +50,8 @@
     "require-dev": {
         "deptrac/deptrac": "^3.0",
         "friendsofphp/php-cs-fixer": "^3.91",
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpunit/phpunit": "^12.5",
         "rector/rector": "^2.2",
         "symfony/maker-bundle": "^1.65",
         "zenstruck/foundry": "^2.8"

@@ -13,13 +13,14 @@ doctrine:
         identity_generation_preferences:
             Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
         auto_mapping: false
+
         mappings:
-            Bioture:
+            Exam:
                 type: attribute
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'Bioture\Entity'
-                alias: Bioture
+                dir: '%kernel.project_dir%/src/Exam/Domain/Model'
+                prefix: 'Bioture\Exam\Domain\Model'
+                alias: Exam
         controller_resolver:
             auto_mapping: false
 

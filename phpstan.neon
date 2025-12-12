@@ -1,6 +1,11 @@
 parameters:
-	level: 8
-	paths:
-		- src
-		- tests
-	tmpDir: var/cache/phpstan
+    level: 8
+    paths:
+        - src
+        - tests
+    tmpDir: var/cache/phpstan
+    doctrine:
+        objectManagerLoader: tests/object-manager.php
+
+includes:
+    - vendor/phpstan/phpstan-doctrine/extension.neon
