@@ -14,3 +14,6 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Exam/Domain/Model/'
             - '../src/Shared/Infrastructure/Symfony/Kernel.php'
+
+    Bioture\Exam\Domain\Service\AICheckerInterface: '@Bioture\Exam\Infrastructure\Service\MockAIChecker'
+
