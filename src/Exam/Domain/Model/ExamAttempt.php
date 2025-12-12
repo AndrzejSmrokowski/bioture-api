@@ -16,20 +16,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'exam_attempt')]
-#[ApiResource(
-    normalizationContext: ['groups' => ['exam_attempt:read']],
-    operations: [
-        new GetCollection(),
-        new Get(),
-        new Post(),
-        new Post(
-            uriTemplate: '/exam_attempts/{id}/submit',
-            processor: ExamAttemptSubmitProcessor::class,
-            input: false,
-            name: 'submit_exam_attempt'
-        )
-    ]
-)]
+#[ApiResource(operations: [
+    new GetCollection(),
+    new Get(),
+    new Post(),
+    new Post(
+        uriTemplate: '/exam_attempts/{id}/submit',
+        input: false,
+        name: 'submit_exam_attempt',
+        processor: ExamAttemptSubmitProcessor::class
+    )
+], normalizationContext: ['groups' => ['exam_attempt:read']])]
 class ExamAttempt
 {
     #[ORM\Id]

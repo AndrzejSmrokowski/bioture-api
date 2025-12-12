@@ -13,7 +13,7 @@ use Bioture\Exam\Domain\Service\ExamAttemptService;
 class ExamAttemptSubmitProcessor implements ProcessorInterface
 {
     public function __construct(
-        private ExamAttemptService $examAttemptService
+        private readonly ExamAttemptService $examAttemptService
     ) {
     }
 

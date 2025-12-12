@@ -12,8 +12,8 @@ use Doctrine\ORM\EntityManagerInterface;
 class ExamAttemptService
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private AICheckerInterface $aiChecker
+        private readonly EntityManagerInterface $entityManager,
+        private readonly AICheckerInterface $aiChecker
     ) {
     }
 

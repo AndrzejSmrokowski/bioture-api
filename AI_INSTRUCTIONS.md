@@ -71,5 +71,7 @@ Before commiting ANY code, you MUST ensure that it passes all CI checks to avoid
     -   All errors must be resolved (Level 8 or max).
 3.  **Run Tests**: `vendor/bin/phpunit`
     -   All unit and integration tests must pass.
+4.  **Run Rector**: `vendor/bin/rector process --dry-run`
+    -   Ensure code is modernized and refactored.
 
 **Do not commit broken code.** If a check fails, fix it first.
