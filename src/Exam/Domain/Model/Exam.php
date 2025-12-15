@@ -108,8 +108,9 @@ class Exam
 
     public function removeTask(Task $task): self
     {
-        if ($this->tasks->removeElement($task) && $task->getExam() === $this) {
-            $task->setExam(null);
+        if ($this->tasks->removeElement($task)) {
+            // Task requires an Exam, so we don't set it to null.
+            // orphanRemoval: true will handle the database deletion.
         }
 
         return $this;
