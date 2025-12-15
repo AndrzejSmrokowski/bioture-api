@@ -7,12 +7,11 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use Bioture\Exam\Domain\Model\Enum\ExamAttemptStatus;
-use Bioture\Exam\Infrastructure\ApiPlatform\State\ExamAttemptSubmitProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'exam_attempt')]
@@ -24,7 +23,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         uriTemplate: '/exam_attempts/{id}/submit',
         input: false,
         name: 'submit_exam_attempt',
-        processor: ExamAttemptSubmitProcessor::class
+        processor: 'Bioture\Exam\Infrastructure\ApiPlatform\State\ExamAttemptSubmitProcessor'
     )
 ], normalizationContext: ['groups' => ['exam_attempt:read']])]
 class ExamAttempt

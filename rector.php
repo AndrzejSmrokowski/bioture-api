@@ -26,4 +26,10 @@ return static function (RectorConfig $rectorConfig): void {
         SetList::DEAD_CODE,
         SetList::TYPE_DECLARATION,
     ]);
+
+    $rectorConfig->skip([
+        \Rector\Php55\Rector\String_\StringClassNameToClassConstantRector::class => [
+            __DIR__ . '/src/Exam/Domain/Model/ExamAttempt.php',
+        ],
+    ]);
 };

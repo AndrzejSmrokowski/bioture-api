@@ -73,5 +73,7 @@ Before commiting ANY code, you MUST ensure that it passes all CI checks to avoid
     -   All unit and integration tests must pass.
 4.  **Run Rector**: `vendor/bin/rector process --dry-run`
     -   Ensure code is modernized and refactored.
+5.  **Run Make CI**: `make ci`
+    -   This combines all the above checks + Deptrac. ALWAYS run this before pushing.
 
 **Do not commit broken code.** If a check fails, fix it first.

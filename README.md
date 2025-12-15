@@ -92,7 +92,8 @@ Reflecting our **DDD** approach, the code is organized by **Bounded Contexts** (
 
 1.  **Make it strict**: Do not ignore PHPStan errors. Fix them.
 2.  **Make it clean**: Run `make cs-fix` before every commit.
-3.  **Make it simple**: Use API Platform resources for CRUD operations. Avoid custom controllers unless necessary.
+3.  **Make it safe**: Always run `make ci` after changes to verify everything.
+4.  **Make it simple**: Use API Platform resources for CRUD operations. Avoid custom controllers unless necessary.
 
 ---
 *Built with ❤️ by Antigravity*

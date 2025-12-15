@@ -3,6 +3,8 @@
 namespace Bioture\Exam\Domain\Model;
 
 use ApiPlatform\Metadata\ApiResource;
+use Bioture\Exam\Domain\Model\Enum\ExamType;
+use Bioture\Exam\Domain\Model\Enum\Month;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,8 +29,12 @@ class Exam
     public function __construct(
         #[ORM\Column(length: 255, unique: true)]
         private string $examId,
-        #[ORM\Column(type: \Doctrine\DBAL\Types\Types::DATE_IMMUTABLE, nullable: true)]
-        private ?\DateTimeImmutable $date = null,
+        #[ORM\Column(type: \Doctrine\DBAL\Types\Types::INTEGER)]
+        private int $year,
+        #[ORM\Column(enumType: Month::class)]
+        private Month $month,
+        #[ORM\Column(enumType: ExamType::class)]
+        private ExamType $type,
     ) {
         $this->tasks = new ArrayCollection();
     }
@@ -49,14 +55,36 @@ class Exam
         return $this;
     }
 
-    public function getDate(): ?\DateTimeImmutable
+    public function getYear(): int
     {
-        return $this->date;
+        return $this->year;
     }
 
-    public function setDate(?\DateTimeImmutable $date): self
+    public function setYear(int $year): self
     {
-        $this->date = $date;
+        $this->year = $year;
+        return $this;
+    }
+
+    public function getMonth(): Month
+    {
+        return $this->month;
+    }
+
+    public function setMonth(Month $month): self
+    {
+        $this->month = $month;
+        return $this;
+    }
+
+    public function getType(): ExamType
+    {
+        return $this->type;
+    }
+
+    public function setType(ExamType $type): self
+    {
+        $this->type = $type;
         return $this;
     }
 
