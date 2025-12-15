@@ -62,6 +62,7 @@ We provide a `Makefile` to simplify daily tasks:
 
 | Command | Description |
 | :--- | :--- |
+| `make init` | Initialize the project (build, up, install). |
 | `make up` | Start the containers in background. |
 | `make down` | Stop the containers. |
 | `make shell` | Enter the PHP container shell. |
@@ -70,6 +71,7 @@ We provide a `Makefile` to simplify daily tasks:
 | `make analyze` | Run PHPStan static analysis. |
 | `make rector` | Run Rector to refactor code. |
 | `make deptrac` | Analyze architectural dependencies. |
+| `make ci` | Run full CI suite (cs-fix, rector, analyze, deptrac, test). |
 
 ## 📖 API Documentation
 
@@ -87,13 +89,6 @@ Reflecting our **DDD** approach, the code is organized by **Bounded Contexts** (
 -   `src/Shared`: Common components shared across domains.
 -   `.docker/`: Docker configuration files.
 -   `tests/`: PHPUnit tests and Factories.
-
-## 💡 Best Practices
-
-1.  **Make it strict**: Do not ignore PHPStan errors. Fix them.
-2.  **Make it clean**: Run `make cs-fix` before every commit.
-3.  **Make it safe**: Always run `make ci` after changes to verify everything.
-4.  **Make it simple**: Use API Platform resources for CRUD operations. Avoid custom controllers unless necessary.
 
 ---
 *Built with ❤️ by Antigravity*
