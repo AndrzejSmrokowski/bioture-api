@@ -1,49 +1,80 @@
 <?php
 
-namespace Bioture\Exam\Domain\Model;
+namespace Bioture\Exam\Infrastructure\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use Bioture\Exam\Domain\Model\Enum\AnswerFormat;
 use Bioture\Exam\Domain\Model\Enum\TaskType;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity]
+#[ORM\Table(name: 'exam_task')]
+#[ORM\Index(name: 'idx_exam_task_order', columns: ['exam_id', 'number', 'sub_number'])]
+#[ORM\Index(name: 'idx_exam_task_type', columns: ['type'])]
+#[ApiResource]
 class Task
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
+    #[ORM\Column(type: Types::STRING, length: 32)]
     private string $code;
 
     /** @var array<string, mixed>|null */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $options = null;
 
     /** @var array<string, mixed> */
+    #[ORM\Column(type: Types::JSON)]
     private array $answerKey = [];
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $gradingRubric = null;
 
     /** @var array<string, mixed>|null */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $sampleSolutions = null;
 
     /** @var array<string, mixed>|null */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $commonPitfalls = null;
 
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
     private ?int $examPage = null;
 
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
     private ?int $keyPage = null;
 
     /** @var array<string, mixed>|null */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $tags = null;
 
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $updatedAt;
 
     public function __construct(
+        #[ORM\ManyToOne(targetEntity: Exam::class, inversedBy: 'tasks')]
+        #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
         private Exam $exam,
+        #[ORM\Column(type: Types::INTEGER)]
         private int $number,
+        #[ORM\Column(name: 'sub_number', type: Types::STRING, length: 10, nullable: true)]
         private ?string $subNumber,
+        #[ORM\Column(enumType: TaskType::class)]
         private TaskType $type,
+        #[ORM\Column(enumType: AnswerFormat::class)]
         private AnswerFormat $answerFormat,
+        #[ORM\Column(type: Types::SMALLINT)]
         private int $maxPoints,
+        #[ORM\Column(type: Types::TEXT)]
         private string $prompt,
+        #[ORM\Column(type: Types::TEXT, nullable: true)]
         private ?string $stimulus = null,
     ) {
         $this->code = $this->subNumber ? "{$this->number}.{$this->subNumber}" : (string) $this->number;

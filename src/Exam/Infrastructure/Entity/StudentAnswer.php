@@ -1,20 +1,42 @@
 <?php
 
-namespace Bioture\Exam\Domain\Model;
+namespace Bioture\Exam\Infrastructure\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
+#[ORM\Entity]
+#[ORM\Table(name: 'student_answer')]
+#[ApiResource]
 class StudentAnswer
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    #[Groups(['exam_attempt:read'])]
     private ?int $id = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['exam_attempt:read'])]
     private ?string $answerContent = null;
 
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    #[Groups(['exam_attempt:read'])]
     private ?int $score = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['exam_attempt:read'])]
     private ?string $feedback = null;
 
     public function __construct(
+        #[ORM\ManyToOne(targetEntity: ExamAttempt::class, inversedBy: 'answers')]
+        #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
         private ExamAttempt $examAttempt,
+        #[ORM\ManyToOne(targetEntity: Task::class)]
+        #[ORM\JoinColumn(nullable: false)]
+        #[Groups(['exam_attempt:read'])]
         private Task $task
     ) {
     }

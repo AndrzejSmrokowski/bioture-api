@@ -2,67 +2,28 @@
 
 namespace Bioture\Exam\Domain\Model;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Post;
 use Bioture\Exam\Domain\Model\Enum\ExamAttemptStatus;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Attribute\Groups;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'exam_attempt')]
-#[ApiResource(operations: [
-    new GetCollection(),
-    new Get(),
-    new Post(),
-    new Post(
-        uriTemplate: '/exam_attempts/{id}/submit',
-        input: false,
-        name: 'submit_exam_attempt',
-        processor: 'Bioture\Exam\Infrastructure\ApiPlatform\State\ExamAttemptSubmitProcessor'
-    )
-], normalizationContext: ['groups' => ['exam_attempt:read']])]
 class ExamAttempt
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    #[Groups(['exam_attempt:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(enumType: ExamAttemptStatus::class)]
-    #[Groups(['exam_attempt:read'])]
     private ExamAttemptStatus $status = ExamAttemptStatus::STARTED;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    #[Groups(['exam_attempt:read'])]
     private \DateTimeImmutable $startedAt;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups(['exam_attempt:read'])]
     private ?\DateTimeImmutable $submittedAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups(['exam_attempt:read'])]
     private ?\DateTimeImmutable $checkedAt = null;
 
     /**
-     * @var Collection<int, StudentAnswer>
+     * @var StudentAnswer[]
      */
-    #[ORM\OneToMany(targetEntity: StudentAnswer::class, mappedBy: 'examAttempt', cascade: ['persist', 'remove'])]
-    #[Groups(['exam_attempt:read'])]
-    private Collection $answers;
+    private array $answers = [];
 
     public function __construct(
-        #[ORM\ManyToOne(targetEntity: Exam::class)]
-        #[ORM\JoinColumn(nullable: false)]
         private Exam $exam
     ) {
-        $this->answers = new ArrayCollection();
         $this->startedAt = new \DateTimeImmutable();
     }
 
@@ -115,17 +76,17 @@ class ExamAttempt
     }
 
     /**
-     * @return Collection<int, StudentAnswer>
+     * @return StudentAnswer[]
      */
-    public function getAnswers(): Collection
+    public function getAnswers(): array
     {
         return $this->answers;
     }
 
     public function addAnswer(StudentAnswer $answer): self
     {
-        if (!$this->answers->contains($answer)) {
-            $this->answers->add($answer);
+        if (!in_array($answer, $this->answers, true)) {
+            $this->answers[] = $answer;
         }
 
         return $this;
