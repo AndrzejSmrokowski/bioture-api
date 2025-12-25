@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="Bioture\Exam\Domain\Model\TaskItem" table="task_item">
+        <id name="id" type="integer">
+            <generator strategy="AUTO"/>
+        </id>
+
+        <field name="code" type="string" />
+        <field name="type" type="string" enum-type="Bioture\Exam\Domain\Model\Enum\TaskType" />
+        <field name="answerFormat" type="string" enum-type="Bioture\Exam\Domain\Model\Enum\AnswerFormat" />
+        <field name="maxPoints" type="integer" />
+        <field name="prompt" type="text" />
+        
+        <field name="options" type="json" nullable="true" />
+        <field name="answerKey" type="json" />
+        <field name="gradingRubric" type="text" nullable="true" />
+        <field name="tags" type="json" nullable="true" />
+
+        <many-to-one field="group" target-entity="Bioture\Exam\Domain\Model\TaskGroup" inversed-by="items">
+            <join-column nullable="false"/>
+        </many-to-one>
+    </entity>
+</doctrine-mapping>

@@ -16,9 +16,9 @@ doctrine:
 
         mappings:
             Exam:
-                type: attribute
+                type: xml
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Exam/Domain/Model'
+                dir: '%kernel.project_dir%/src/Exam/Infrastructure/Persistence/Doctrine/Mapping'
                 prefix: 'Bioture\Exam\Domain\Model'
                 alias: Exam
         controller_resolver:

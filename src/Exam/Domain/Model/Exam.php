@@ -4,15 +4,17 @@ namespace Bioture\Exam\Domain\Model;
 
 use Bioture\Exam\Domain\Model\Enum\ExamType;
 use Bioture\Exam\Domain\Model\Enum\Month;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 class Exam
 {
     private ?int $id = null;
 
     /**
-     * @var Task[]
+     * @var Collection<int, TaskGroup>
      */
-    private array $tasks = [];
+    private Collection $taskGroups;
 
     public function __construct(
         private string $examId,
@@ -20,6 +22,7 @@ class Exam
         private Month $month,
         private ExamType $type,
     ) {
+        $this->taskGroups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -72,35 +75,30 @@ class Exam
     }
 
     /**
-     * @return Task[]
+     * @return Collection<int, TaskGroup>
      */
-    public function getTasks(): array
+    public function getTaskGroups(): Collection
     {
-        return $this->tasks;
+        return $this->taskGroups;
     }
 
-    public function addTask(Task $task): self
+    public function addTaskGroup(TaskGroup $group): self
     {
-        if (!in_array($task, $this->tasks, true)) {
-            $this->tasks[] = $task;
-            $task->setExam($this);
+        if (!$this->taskGroups->contains($group)) {
+            $this->taskGroups->add($group);
+            // $group->setExam($this); // Managed by TaskGroup constructor usually or setter
         }
-
         return $this;
     }
 
-    public function removeTask(Task $task): self
+    public function removeTaskGroup(TaskGroup $group): self
     {
-        $key = array_search($task, $this->tasks, true);
-        if ($key !== false) {
-            unset($this->tasks[$key]);
-            $this->tasks = array_values($this->tasks);
-            
-            if ($task->getExam() === $this) {
-                $task->setExam(null);
-            }
+        if ($this->taskGroups->removeElement($group)) {
+            // set the owning side to null (unless already changed)
+            // if ($group->getExam() === $this) {
+            //     $group->setExam(null); // Cannot modify readonly property, ideally constructor enforced
+            // }
         }
-
         return $this;
     }
 }

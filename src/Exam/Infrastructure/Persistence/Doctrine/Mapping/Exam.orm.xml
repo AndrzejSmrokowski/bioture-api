@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="Bioture\Exam\Domain\Model\Exam" table="exam">
+        <id name="id" type="integer">
+            <generator strategy="AUTO"/>
+        </id>
+
+        <field name="examId" type="string" />
+        <field name="year" type="integer" />
+        <field name="month" type="integer" enum-type="Bioture\Exam\Domain\Model\Enum\Month" />
+        <field name="type" type="string" enum-type="Bioture\Exam\Domain\Model\Enum\ExamType" />
+
+        <one-to-many field="taskGroups" target-entity="Bioture\Exam\Domain\Model\TaskGroup" mapped-by="exam">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-many>
+    </entity>
+</doctrine-mapping>

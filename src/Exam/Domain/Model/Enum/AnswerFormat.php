@@ -9,4 +9,7 @@ enum AnswerFormat: string
     case CHOICE = 'choice';
     case BOOLEAN = 'boolean';
     case JSON = 'json';
+    case MULTI_TEXT = 'multi_text';
+    case TABLE = 'table';
+    case ORDERING = 'ordering';
 }
