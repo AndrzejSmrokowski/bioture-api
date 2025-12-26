@@ -3,7 +3,8 @@
 This document describes the schema required to generate a valid JSON fixture for the Bioture Biology Exam system.
 
 ## 1. Target JSON Structure
-The goal is to produce a JSON file (e.g., `biologia-2025.json`) with the following structure:
+The goal is to produce a JSON file (e.g., `biologia-2025.json`) which represents the **Domain Model**.
+*Note: The system internally maps this structure to specific Doctrine Entities (`ExamEntity`, `TaskGroupEntity`...) for storage.*
 
 ```json
 {

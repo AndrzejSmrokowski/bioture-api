@@ -1,8 +1,7 @@
 <?php
 
-namespace Bioture\Exam\Infrastructure\Entity;
+namespace Bioture\Exam\Infrastructure\Persistence\Doctrine\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use Bioture\Exam\Domain\Model\Enum\ExamType;
 use Bioture\Exam\Domain\Model\Enum\Month;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -11,32 +10,34 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'exam')]
-#[ApiResource]
-class Exam
+class ExamEntity
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    /**
-     * @var Collection<int, Task>
-     */
-    #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'exam', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['position' => 'ASC'])]
-    private Collection $tasks;
+    #[ORM\Column]
+    private string $examId;
 
-    public function __construct(
-        #[ORM\Column(length: 255, unique: true)]
-        private string $examId,
-        #[ORM\Column(type: \Doctrine\DBAL\Types\Types::INTEGER)]
-        private int $year,
-        #[ORM\Column(enumType: Month::class)]
-        private Month $month,
-        #[ORM\Column(enumType: ExamType::class)]
-        private ExamType $type,
-    ) {
-        $this->tasks = new ArrayCollection();
+    #[ORM\Column]
+    private int $year;
+
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::INTEGER, enumType: Month::class)]
+    private Month $month;
+
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::STRING, enumType: ExamType::class)]
+    private ExamType $type;
+
+    /**
+     * @var Collection<int, TaskGroupEntity>
+     */
+    #[ORM\OneToMany(targetEntity: TaskGroupEntity::class, mappedBy: 'exam', cascade: ['persist', 'remove'])]
+    private Collection $taskGroups;
+
+    public function __construct()
+    {
+        $this->taskGroups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -89,30 +90,27 @@ class Exam
     }
 
     /**
-     * @return Collection<int, Task>
+     * @return Collection<int, TaskGroupEntity>
      */
-    public function getTasks(): Collection
+    public function getTaskGroups(): Collection
     {
-        return $this->tasks;
+        return $this->taskGroups;
     }
 
-    public function addTask(Task $task): self
+    public function addTaskGroup(TaskGroupEntity $group): self
     {
-        if (!$this->tasks->contains($task)) {
-            $this->tasks->add($task);
-            $task->setExam($this);
+        if (!$this->taskGroups->contains($group)) {
+            $this->taskGroups->add($group);
+            $group->setExam($this);
         }
-
         return $this;
     }
 
-    public function removeTask(Task $task): self
+    public function removeTaskGroup(TaskGroupEntity $group): self
     {
-        if ($this->tasks->removeElement($task)) {
-            // Task requires an Exam, so we don't set it to null.
-            // orphanRemoval: true will handle the database deletion.
+        if ($this->taskGroups->removeElement($group) && $group->getExam() === $this) {
+            $group->setExam(null);
         }
-
         return $this;
     }
 }

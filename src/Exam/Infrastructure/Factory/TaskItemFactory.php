@@ -4,20 +4,20 @@ namespace Bioture\Exam\Infrastructure\Factory;
 
 use Bioture\Exam\Domain\Model\Enum\AnswerFormat;
 use Bioture\Exam\Domain\Model\Enum\TaskType;
-use Bioture\Exam\Domain\Model\TaskItem;
+use Bioture\Exam\Infrastructure\Persistence\Doctrine\Entity\TaskItemEntity;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<TaskItem>
+ * @extends PersistentProxyObjectFactory<TaskItemEntity>
  */
 final class TaskItemFactory extends PersistentProxyObjectFactory
 {
     public static function class(): string
     {
-        return TaskItem::class;
+        return TaskItemEntity::class;
     }
 
-    protected function defaults(): array|callable
+    protected function defaults(): array
     {
         return [
             'group' => TaskGroupFactory::new(),

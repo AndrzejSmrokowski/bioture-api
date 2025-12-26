@@ -18,7 +18,7 @@ final class BiologyExamStory extends Story
     public function build(): void
     {
         $jsonContent = file_get_contents(__DIR__ . '/../../data/exam/biologia-2025.json');
-        
+
         if ($jsonContent === false) {
             throw new \RuntimeException('Could not read exam data file.');
         }
@@ -45,7 +45,7 @@ final class BiologyExamStory extends Story
             // Create Task items (Podpunkty) inside the group
             if (isset($groupData['items'])) {
                 foreach ($groupData['items'] as $itemData) {
-                     TaskItemFactory::createOne([
+                    TaskItemFactory::createOne([
                         'group' => $group,
                         'code' => $itemData['code'] ?? ($groupData['number'] . '.' . ($itemData['subNumber'] ?? '1')),
                         'type' => TaskType::tryFrom($itemData['type']) ?? TaskType::SHORT_OPEN,

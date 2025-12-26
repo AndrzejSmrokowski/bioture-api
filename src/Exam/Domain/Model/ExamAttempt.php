@@ -6,23 +6,31 @@ use Bioture\Exam\Domain\Model\Enum\ExamAttemptStatus;
 
 class ExamAttempt
 {
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     private ExamAttemptStatus $status = ExamAttemptStatus::STARTED;
 
-    private \DateTimeImmutable $startedAt;
+    private readonly \DateTimeImmutable $startedAt;
 
     private ?\DateTimeImmutable $submittedAt = null;
 
     private ?\DateTimeImmutable $checkedAt = null;
+
+    private ?string $userId = null; // e.g. 'student-uuid'
 
     /**
      * @var StudentAnswer[]
      */
     private array $answers = [];
 
+    /**
+     * @var TaskEvaluation[]
+     */
+    private array $evaluations = [];
+
     public function __construct(
-        private Exam $exam
+        private readonly Exam $exam
     ) {
         $this->startedAt = new \DateTimeImmutable();
     }
@@ -35,6 +43,17 @@ class ExamAttempt
     public function getExam(): Exam
     {
         return $this->exam;
+    }
+
+    public function getUserId(): ?string
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(?string $userId): self
+    {
+        $this->userId = $userId;
+        return $this;
     }
 
     public function getStatus(): ExamAttemptStatus
@@ -85,10 +104,28 @@ class ExamAttempt
 
     public function addAnswer(StudentAnswer $answer): self
     {
-        if (!in_array($answer, $this->answers, true)) {
-            $this->answers[] = $answer;
+        // Replace existing answer for the same TaskItem
+        foreach ($this->answers as $key => $existing) {
+            if ($existing->getTaskItem()->getCode() === $answer->getTaskItem()->getCode()) {
+                $this->answers[$key] = $answer;
+                return $this;
+            }
         }
+        $this->answers[] = $answer;
+        return $this;
+    }
 
+    /**
+     * @return TaskEvaluation[]
+     */
+    public function getEvaluations(): array
+    {
+        return $this->evaluations;
+    }
+
+    public function addEvaluation(TaskEvaluation $evaluation): self
+    {
+        $this->evaluations[] = $evaluation;
         return $this;
     }
 }

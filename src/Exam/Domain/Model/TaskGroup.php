@@ -7,19 +7,20 @@ use Doctrine\Common\Collections\Collection;
 
 class TaskGroup
 {
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     /** @var Collection<int, TaskItem> */
-    private Collection $items;
+    private readonly Collection $items;
 
     /** @var Collection<int, Asset> */
-    private Collection $assets;
+    private readonly Collection $assets;
 
     public function __construct(
-        private Exam $exam,
-        private int $number,
+        private readonly Exam $exam,
+        private readonly int $number,
         private ?string $stimulus = null, // HTML content valid for all items
-        private ?int $examPage = null,
+        private readonly ?int $examPage = null,
     ) {
         $this->items = new ArrayCollection();
         $this->assets = new ArrayCollection();
@@ -65,9 +66,10 @@ class TaskGroup
 
     public function addItem(TaskItem $item): self
     {
+        /** @phpstan-ignore-next-line */
         if (!$this->items->contains($item)) {
             $this->items->add($item);
-            // $item->setGroup($this); 
+            // $item->setGroup($this);
         }
         return $this;
     }
@@ -80,6 +82,7 @@ class TaskGroup
 
     public function addAsset(Asset $asset): self
     {
+        /** @phpstan-ignore-next-line */
         if (!$this->assets->contains($asset)) {
             $this->assets->add($asset);
         }

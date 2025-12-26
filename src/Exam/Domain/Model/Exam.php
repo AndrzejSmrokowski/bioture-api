@@ -9,12 +9,13 @@ use Doctrine\Common\Collections\Collection;
 
 class Exam
 {
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     /**
      * @var Collection<int, TaskGroup>
      */
-    private Collection $taskGroups;
+    private readonly Collection $taskGroups;
 
     public function __construct(
         private string $examId,
@@ -84,6 +85,7 @@ class Exam
 
     public function addTaskGroup(TaskGroup $group): self
     {
+        /** @phpstan-ignore-next-line */
         if (!$this->taskGroups->contains($group)) {
             $this->taskGroups->add($group);
             // $group->setExam($this); // Managed by TaskGroup constructor usually or setter

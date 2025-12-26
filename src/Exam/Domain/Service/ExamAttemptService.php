@@ -6,13 +6,13 @@ use Bioture\Exam\Domain\Model\Enum\ExamAttemptStatus;
 use Bioture\Exam\Domain\Model\Exam;
 use Bioture\Exam\Domain\Model\ExamAttempt;
 use Bioture\Exam\Domain\Model\StudentAnswer;
-use Bioture\Exam\Domain\Model\Task;
-use Doctrine\ORM\EntityManagerInterface;
+use Bioture\Exam\Domain\Model\TaskItem;
+use Bioture\Exam\Domain\Repository\ExamAttemptRepositoryInterface;
 
 class ExamAttemptService
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly ExamAttemptRepositoryInterface $repository,
         private readonly AICheckerInterface $aiChecker
     ) {
     }
@@ -20,36 +20,29 @@ class ExamAttemptService
     public function startExam(Exam $exam): ExamAttempt
     {
         $attempt = new ExamAttempt($exam);
-        $this->entityManager->persist($attempt);
-        $this->entityManager->flush();
+        $this->repository->save($attempt);
 
         return $attempt;
     }
 
     // Usually you'd submit all answers at once or one by one.
     // For simplicity, let's assume we can add/update answer.
-    public function saveAnswer(ExamAttempt $attempt, Task $task, string $content): StudentAnswer
+    /**
+     * @param array<string, mixed>|string $payload
+     */
+    public function saveAnswer(ExamAttempt $attempt, TaskItem $task, string|array $payload): StudentAnswer
     {
-        // Check if answer exists
-        $existing = null;
-        foreach ($attempt->getAnswers() as $ans) {
-            if ($ans->getTask()->getId() === $task->getId()) {
-                $existing = $ans;
-                break;
-            }
-        }
-
+        $existing = array_find($attempt->getAnswers(), fn ($ans): bool => $ans->getTaskItem()->getId() && $task->getId() && $ans->getTaskItem()->getId() === $task->getId());
         if ($existing) {
-            $existing->setAnswerContent($content);
+            $existing->setPayload($payload);
             $answer = $existing;
         } else {
             $answer = new StudentAnswer($attempt, $task);
-            $answer->setAnswerContent($content);
-            $this->entityManager->persist($answer);
-            // $attempt->addAnswer($answer); // Updates collection side
+            $answer->setPayload($payload);
+            $attempt->addAnswer($answer); // Updates collection side
         }
 
-        $this->entityManager->flush();
+        $this->repository->save($attempt);
         return $answer;
     }
 
@@ -61,6 +54,6 @@ class ExamAttemptService
         // Trigger AI Check Immediately for this workflow
         $this->aiChecker->checkAttempt($attempt);
 
-        $this->entityManager->flush();
+        $this->repository->save($attempt);
     }
 }

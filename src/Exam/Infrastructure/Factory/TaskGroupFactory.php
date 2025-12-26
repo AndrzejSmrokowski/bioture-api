@@ -3,20 +3,20 @@
 namespace Bioture\Exam\Infrastructure\Factory;
 
 use Bioture\Exam\Domain\Model\Exam;
-use Bioture\Exam\Domain\Model\TaskGroup;
+use Bioture\Exam\Infrastructure\Persistence\Doctrine\Entity\TaskGroupEntity;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<TaskGroup>
+ * @extends PersistentProxyObjectFactory<TaskGroupEntity>
  */
 final class TaskGroupFactory extends PersistentProxyObjectFactory
 {
     public static function class(): string
     {
-        return TaskGroup::class;
+        return TaskGroupEntity::class;
     }
 
-    protected function defaults(): array|callable
+    protected function defaults(): array
     {
         return [
             'exam' => ExamFactory::new(),

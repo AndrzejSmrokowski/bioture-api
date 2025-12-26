@@ -7,26 +7,22 @@ use Bioture\Exam\Domain\Model\Enum\TaskType;
 
 class TaskItem
 {
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     /** @var array<string, mixed>|null */
     private ?array $options = null;
 
     /** @var array<string, mixed> */
-    private array $answerKey = []; 
-
-    private ?string $gradingRubric = null;
-
-    /** @var array<string, mixed>|null */
-    private ?array $tags = null;
+    private array $answerKey = [];
 
     public function __construct(
-        private TaskGroup $group,
-        private string $code, // e.g., "1.1"
-        private TaskType $type,
-        private AnswerFormat $answerFormat,
-        private int $maxPoints,
-        private string $prompt,
+        private readonly TaskGroup $group,
+        private readonly string $code, // e.g., "1.1"
+        private readonly TaskType $type,
+        private readonly AnswerFormat $answerFormat,
+        private readonly int $maxPoints,
+        private readonly string $prompt,
     ) {
         $group->addItem($this);
     }
@@ -80,13 +76,15 @@ class TaskItem
     }
 
     // ... keeping other getters/setters simple for now
-    
+
+    /** @param array<string, mixed> $answerKey */
     public function setAnswerKey(array $answerKey): self
     {
         $this->answerKey = $answerKey;
         return $this;
     }
 
+    /** @return array<string, mixed> */
     public function getAnswerKey(): array
     {
         return $this->answerKey;

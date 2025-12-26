@@ -4,20 +4,20 @@ namespace Bioture\Exam\Infrastructure\Factory;
 
 use Bioture\Exam\Domain\Model\Enum\ExamType;
 use Bioture\Exam\Domain\Model\Enum\Month;
-use Bioture\Exam\Domain\Model\Exam;
+use Bioture\Exam\Infrastructure\Persistence\Doctrine\Entity\ExamEntity;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Exam>
+ * @extends PersistentProxyObjectFactory<ExamEntity>
  */
 final class ExamFactory extends PersistentProxyObjectFactory
 {
     public static function class(): string
     {
-        return Exam::class;
+        return ExamEntity::class;
     }
 
-    protected function defaults(): array|callable
+    protected function defaults(): array
     {
         return [
             'examId' => self::faker()->unique()->slug(),

@@ -1,6 +1,6 @@
 <?php
 
-namespace Bioture\Exam\Infrastructure\Entity;
+namespace Bioture\Exam\Infrastructure\Persistence\Doctrine\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
@@ -23,10 +23,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
         uriTemplate: '/exam_attempts/{id}/submit',
         input: false,
         name: 'submit_exam_attempt',
-        processor: 'Bioture\Exam\Infrastructure\ApiPlatform\State\ExamAttemptSubmitProcessor'
+        processor: \Bioture\Exam\Infrastructure\ApiPlatform\State\ExamAttemptSubmitProcessor::class
     )
 ], normalizationContext: ['groups' => ['exam_attempt:read']])]
-class ExamAttempt
+class ExamAttemptEntity
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -51,18 +51,26 @@ class ExamAttempt
     private ?\DateTimeImmutable $checkedAt = null;
 
     /**
-     * @var Collection<int, StudentAnswer>
+     * @var Collection<int, StudentAnswerEntity>
      */
-    #[ORM\OneToMany(targetEntity: StudentAnswer::class, mappedBy: 'examAttempt', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: StudentAnswerEntity::class, mappedBy: 'examAttempt', cascade: ['persist', 'remove'])]
     #[Groups(['exam_attempt:read'])]
     private Collection $answers;
 
+    /**
+     * @var Collection<int, TaskEvaluationEntity>
+     */
+    #[ORM\OneToMany(targetEntity: TaskEvaluationEntity::class, mappedBy: 'examAttempt', cascade: ['persist', 'remove'])]
+    #[Groups(['exam_attempt:read'])]
+    private Collection $evaluations;
+
     public function __construct(
-        #[ORM\ManyToOne(targetEntity: Exam::class)]
+        #[ORM\ManyToOne(targetEntity: ExamEntity::class)]
         #[ORM\JoinColumn(nullable: false)]
-        private Exam $exam
+        private ExamEntity $exam
     ) {
         $this->answers = new ArrayCollection();
+        $this->evaluations = new ArrayCollection();
         $this->startedAt = new \DateTimeImmutable();
     }
 
@@ -71,7 +79,7 @@ class ExamAttempt
         return $this->id;
     }
 
-    public function getExam(): Exam
+    public function getExam(): ExamEntity
     {
         return $this->exam;
     }
@@ -115,17 +123,34 @@ class ExamAttempt
     }
 
     /**
-     * @return Collection<int, StudentAnswer>
+     * @return Collection<int, StudentAnswerEntity>
      */
     public function getAnswers(): Collection
     {
         return $this->answers;
     }
 
-    public function addAnswer(StudentAnswer $answer): self
+    public function addAnswer(StudentAnswerEntity $answer): self
     {
         if (!$this->answers->contains($answer)) {
             $this->answers->add($answer);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TaskEvaluationEntity>
+     */
+    public function getEvaluations(): Collection
+    {
+        return $this->evaluations;
+    }
+
+    public function addEvaluation(TaskEvaluationEntity $evaluation): self
+    {
+        if (!$this->evaluations->contains($evaluation)) {
+            $this->evaluations->add($evaluation);
         }
 
         return $this;

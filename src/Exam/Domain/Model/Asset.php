@@ -4,13 +4,14 @@ namespace Bioture\Exam\Domain\Model;
 
 class Asset
 {
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     public function __construct(
-        private TaskGroup $group,
-        private string $type, // 'image', 'table', 'chart'
-        private string $path, // or url
-        private ?string $altText = null,
+        private readonly TaskGroup $group,
+        private readonly string $type, // 'image', 'table', 'chart'
+        private readonly string $path, // or url
+        private readonly ?string $altText = null,
     ) {
         $group->addAsset($this);
     }
