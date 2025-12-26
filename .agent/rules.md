@@ -53,6 +53,7 @@
 *   **Format**: `type(scope): description`
 *   **Types**: `feat`, `fix`, `refactor`, `style`, `test`, `chore`, `docs`.
 *   **Rule**: Commit often. Do not mix unrelated changes in one commit.
+*   **Bot Rule**: Before proposing a commit name, ALWAYS check actual code diffs (`git diff --staged` or similar) to ensure the message accurately reflects complexity and content.
 
 ## 4. CI/CD & Verification "Gatekeeper"
 **NEVER COMMIT BROKEN CODE.**
