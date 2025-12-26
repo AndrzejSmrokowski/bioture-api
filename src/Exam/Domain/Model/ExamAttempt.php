@@ -6,11 +6,12 @@ use Bioture\Exam\Domain\Model\Enum\ExamAttemptStatus;
 
 class ExamAttempt
 {
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     private ExamAttemptStatus $status = ExamAttemptStatus::STARTED;
 
-    private \DateTimeImmutable $startedAt;
+    private readonly \DateTimeImmutable $startedAt;
 
     private ?\DateTimeImmutable $submittedAt = null;
 
@@ -21,10 +22,75 @@ class ExamAttempt
      */
     private array $answers = [];
 
+    /**
+     * @var TaskEvaluation[]
+     */
+    private array $evaluations = [];
+
     public function __construct(
-        private Exam $exam
+        private readonly Exam $exam,
+        private readonly string $userId
     ) {
         $this->startedAt = new \DateTimeImmutable();
+    }
+
+    public function submit(): void
+    {
+        if ($this->status === ExamAttemptStatus::GRADED) {
+            throw new \DomainException('Cannot submit an already graded exam.');
+        }
+
+        if ($this->status === ExamAttemptStatus::SUBMITTED) {
+            return;
+        }
+
+        $this->status = ExamAttemptStatus::SUBMITTED;
+        $this->submittedAt = new \DateTimeImmutable();
+    }
+
+    public function finishGrading(): void
+    {
+        if ($this->status === ExamAttemptStatus::STARTED) {
+            throw new \DomainException('Cannot grade an unsubmitted exam.');
+        }
+
+        if ($this->status === ExamAttemptStatus::GRADED) {
+            return;
+        }
+
+        $this->status = ExamAttemptStatus::GRADED;
+        $this->checkedAt = new \DateTimeImmutable();
+    }
+
+    /**
+     * @param array<string, mixed>|string $payload
+     */
+    public function recordAnswer(TaskItem $taskItem, array|string $payload): StudentAnswer
+    {
+        // Replace existing answer for the same TaskItem (by Code)
+        foreach ($this->answers as $existing) {
+            if ($existing->getTaskCode()->equals($taskItem->getCode())) {
+                $existing->updatePayload($payload);
+                return $existing;
+            }
+        }
+
+        $answer = new StudentAnswer($this, $taskItem->getCode(), $payload);
+        $this->answers[] = $answer;
+        return $answer;
+    }
+
+    public function recordEvaluation(TaskEvaluation $evaluation): self
+    {
+        // Replace strategy: Remove existing evaluation for this task code
+        // (Simple strategy A from requirements)
+        $this->evaluations = array_filter(
+            $this->evaluations,
+            fn (TaskEvaluation $e): bool => !$e->getTaskCode()->equals($evaluation->getTaskCode())
+        );
+
+        $this->evaluations[] = $evaluation;
+        return $this;
     }
 
     public function getId(): ?int
@@ -37,15 +103,14 @@ class ExamAttempt
         return $this->exam;
     }
 
+    public function getUserId(): string
+    {
+        return $this->userId;
+    }
+
     public function getStatus(): ExamAttemptStatus
     {
         return $this->status;
-    }
-
-    public function setStatus(ExamAttemptStatus $status): self
-    {
-        $this->status = $status;
-        return $this;
     }
 
     public function getStartedAt(): \DateTimeImmutable
@@ -58,21 +123,9 @@ class ExamAttempt
         return $this->submittedAt;
     }
 
-    public function setSubmittedAt(?\DateTimeImmutable $submittedAt): self
-    {
-        $this->submittedAt = $submittedAt;
-        return $this;
-    }
-
     public function getCheckedAt(): ?\DateTimeImmutable
     {
         return $this->checkedAt;
-    }
-
-    public function setCheckedAt(?\DateTimeImmutable $checkedAt): self
-    {
-        $this->checkedAt = $checkedAt;
-        return $this;
     }
 
     /**
@@ -83,12 +136,29 @@ class ExamAttempt
         return $this->answers;
     }
 
+    /**
+     * @internal Used by Doctrine/Mapper only
+     */
     public function addAnswer(StudentAnswer $answer): self
     {
-        if (!in_array($answer, $this->answers, true)) {
-            $this->answers[] = $answer;
-        }
+        $this->answers[] = $answer;
+        return $this;
+    }
 
+    /**
+     * @return TaskEvaluation[]
+     */
+    public function getEvaluations(): array
+    {
+        return $this->evaluations;
+    }
+
+    /**
+     * @internal Used by Doctrine/Mapper only
+     */
+    public function addEvaluation(TaskEvaluation $evaluation): self
+    {
+        $this->evaluations[] = $evaluation;
         return $this;
     }
 }

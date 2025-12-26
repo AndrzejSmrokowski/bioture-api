@@ -2,20 +2,16 @@
 
 namespace Bioture\Exam\Domain\Model;
 
-
 class StudentAnswer
 {
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
-    private ?string $answerContent = null;
-
-    private ?int $score = null;
-
-    private ?string $feedback = null;
-
     public function __construct(
-        private ExamAttempt $examAttempt,
-        private Task $task
+        private readonly ExamAttempt $examAttempt,
+        private readonly \Bioture\Exam\Domain\Model\ValueObject\TaskCode $taskCode,
+        /** @var array<string, mixed>|string|null */
+        private array|string|null $payload = null
     ) {
     }
 
@@ -29,41 +25,25 @@ class StudentAnswer
         return $this->examAttempt;
     }
 
-    public function getTask(): Task
+    public function getTaskCode(): \Bioture\Exam\Domain\Model\ValueObject\TaskCode
     {
-        return $this->task;
+        return $this->taskCode;
     }
 
-    public function getAnswerContent(): ?string
+    /**
+     * @return array<string, mixed>|string|null
+     */
+    public function getPayload(): array|string|null
     {
-        return $this->answerContent;
+        return $this->payload;
     }
 
-    public function setAnswerContent(?string $answerContent): self
+    /**
+     * @param array<string, mixed>|string|null $payload
+     */
+    public function updatePayload(array|string|null $payload): self
     {
-        $this->answerContent = $answerContent;
-        return $this;
-    }
-
-    public function getScore(): ?int
-    {
-        return $this->score;
-    }
-
-    public function setScore(?int $score): self
-    {
-        $this->score = $score;
-        return $this;
-    }
-
-    public function getFeedback(): ?string
-    {
-        return $this->feedback;
-    }
-
-    public function setFeedback(?string $feedback): self
-    {
-        $this->feedback = $feedback;
+        $this->payload = $payload;
         return $this;
     }
 }

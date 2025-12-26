@@ -1,0 +1,87 @@
+{
+    "examId": "biologia-2025-maj-rozszerzona",
+    "year": 2025,
+    "month": 5,
+    "type": "matura",
+    "taskGroups": [
+        {
+            "number": 1,
+            "stimulus": "Opis procesu fotosyntezy... (wspólny tekst/obraz)",
+            "examPage": 2,
+            "items": [
+                {
+                    "code": "1.1",
+                    "subNumber": "1",
+                    "type": "short_open",
+                    "answerFormat": "text",
+                    "maxPoints": 1,
+                    "prompt": "Wyjaśnij znaczenie chlorofilu..."
+                },
+                {
+                    "code": "1.2",
+                    "subNumber": "2",
+                    "type": "true_false",
+                    "answerFormat": "choice",
+                    "maxPoints": 1,
+                    "prompt": "Oceń prawdziwość zdań...",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "1",
+                                "text": "Zdanie A"
+                            },
+                            {
+                                "id": "2",
+                                "text": "Zdanie B"
+                            }
+                        ]
+                    },
+                    "answerKey": [
+                        {
+                            "id": "1",
+                            "value": true
+                        },
+                        {
+                            "id": "2",
+                            "value": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "number": 2,
+            "stimulus": null,
+            "items": [
+                {
+                    "code": "2.1",
+                    "type": "choice",
+                    "answerFormat": "choice",
+                    "maxPoints": 1,
+                    "prompt": "Wybierz poprawną odpowiedź.",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "A"
+                            },
+                            {
+                                "id": "B"
+                            },
+                            {
+                                "id": "C"
+                            },
+                            {
+                                "id": "D"
+                            }
+                        ]
+                    },
+                    "answerKey": [
+                        {
+                            "id": "B"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

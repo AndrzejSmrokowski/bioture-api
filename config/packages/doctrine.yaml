@@ -18,8 +18,8 @@ doctrine:
             Exam:
                 type: attribute
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Exam/Domain/Model'
-                prefix: 'Bioture\Exam\Domain\Model'
+                dir: '%kernel.project_dir%/src/Exam/Infrastructure/Persistence/Doctrine/Entity'
+                prefix: 'Bioture\Exam\Infrastructure\Persistence\Doctrine\Entity'
                 alias: Exam
         controller_resolver:
             auto_mapping: false

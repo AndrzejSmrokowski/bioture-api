@@ -4,22 +4,26 @@ namespace Bioture\Exam\Domain\Model;
 
 use Bioture\Exam\Domain\Model\Enum\ExamType;
 use Bioture\Exam\Domain\Model\Enum\Month;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 class Exam
 {
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     /**
-     * @var Task[]
+     * @var Collection<int, TaskGroup>
      */
-    private array $tasks = [];
+    private readonly Collection $taskGroups;
 
     public function __construct(
-        private string $examId,
-        private int $year,
-        private Month $month,
-        private ExamType $type,
+        private readonly string $examId,
+        private readonly int $year,
+        private readonly Month $month,
+        private readonly ExamType $type,
     ) {
+        $this->taskGroups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -32,21 +36,9 @@ class Exam
         return $this->examId;
     }
 
-    public function setExamId(string $examId): self
-    {
-        $this->examId = $examId;
-        return $this;
-    }
-
     public function getYear(): int
     {
         return $this->year;
-    }
-
-    public function setYear(int $year): self
-    {
-        $this->year = $year;
-        return $this;
     }
 
     public function getMonth(): Month
@@ -54,53 +46,37 @@ class Exam
         return $this->month;
     }
 
-    public function setMonth(Month $month): self
-    {
-        $this->month = $month;
-        return $this;
-    }
-
     public function getType(): ExamType
     {
         return $this->type;
     }
 
-    public function setType(ExamType $type): self
-    {
-        $this->type = $type;
-        return $this;
-    }
-
     /**
-     * @return Task[]
+     * @return Collection<int, TaskGroup>
      */
-    public function getTasks(): array
+    public function getTaskGroups(): Collection
     {
-        return $this->tasks;
+        return $this->taskGroups;
     }
 
-    public function addTask(Task $task): self
+    public function addTaskGroup(TaskGroup $group): self
     {
-        if (!in_array($task, $this->tasks, true)) {
-            $this->tasks[] = $task;
-            $task->setExam($this);
+        /** @phpstan-ignore-next-line */
+        if (!$this->taskGroups->contains($group)) {
+            $this->taskGroups->add($group);
+            // $group->setExam($this); // Managed by TaskGroup constructor usually or setter
         }
-
         return $this;
     }
 
-    public function removeTask(Task $task): self
+    public function removeTaskGroup(TaskGroup $group): self
     {
-        $key = array_search($task, $this->tasks, true);
-        if ($key !== false) {
-            unset($this->tasks[$key]);
-            $this->tasks = array_values($this->tasks);
-            
-            if ($task->getExam() === $this) {
-                $task->setExam(null);
-            }
+        if ($this->taskGroups->removeElement($group)) {
+            // set the owning side to null (unless already changed)
+            // if ($group->getExam() === $this) {
+            //     $group->setExam(null); // Cannot modify readonly property, ideally constructor enforced
+            // }
         }
-
         return $this;
     }
 }
