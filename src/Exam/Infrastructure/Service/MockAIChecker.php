@@ -16,16 +16,23 @@ class MockAIChecker implements AICheckerInterface
             // Mock logic: if response length > 5, full points :D
             // In real world, call OpenAI API here.
 
-            $taskItem = $answer->getTaskItem();
-            // Note: maxPoints is on the TaskItem now? Or Group?
-            // In TaskItemEntity it was maxPoints.
-            // Domain TaskItem needs maxPoints accessor.
-            // Assuming it's there. If not, I need to check TaskItem.php.
-            // Let's assume getPoints() or getMaxPoints().
+            // Find the real TaskItem from the ExamAttempt's Exam structure
+            $targetCode = $answer->getTaskCode()->getValue();
+            $taskItem = null;
 
-            // To be safe, I'll check TaskItem source quickly or assume standard name.
-            // If implementation fails, I'll fix it.
-            // Standard convention: getMaxPoints()
+            // Inefficient but safe MVP traversal
+            foreach ($attempt->getExam()->getTaskGroups() as $group) {
+                foreach ($group->getItems() as $item) {
+                    if ($item->getCode()->getValue() === $targetCode) {
+                        $taskItem = $item;
+                        break 2;
+                    }
+                }
+            }
+
+            if (!$taskItem) {
+                continue; // Or throw exception? Skip for now.
+            }
 
             $maxPoints = $taskItem->getMaxPoints();
 
@@ -35,16 +42,17 @@ class MockAIChecker implements AICheckerInterface
 
             $score = (strlen($content) > 10) ? $maxPoints : 0;
 
-            $evaluation = new TaskEvaluation($attempt, $taskItem);
-            $evaluation->setAwardedPoints($score);
-            $evaluation->setRationale("Mock AI Feedback: Answer length was " . strlen($content) . ". Score assigned: $score/$maxPoints.");
-            $evaluation->setGrader('MOCK_AI');
-            $evaluation->setGraderVersion('v1.0');
+            $evaluation = TaskEvaluation::createAi(
+                $attempt,
+                $taskItem,
+                $score,
+                'gpt-4-mock',
+                "Mock AI Feedback: Answer length was " . strlen($content) . ". Score assigned: $score/$maxPoints."
+            );
 
-            $attempt->addEvaluation($evaluation);
+            $attempt->recordEvaluation($evaluation);
         }
 
-        $attempt->setCheckedAt(new \DateTimeImmutable());
-        $attempt->setStatus(ExamAttemptStatus::CHECKED);
+        $attempt->finishGrading();
     }
 }

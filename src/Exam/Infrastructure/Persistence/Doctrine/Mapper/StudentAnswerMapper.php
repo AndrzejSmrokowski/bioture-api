@@ -9,47 +9,43 @@ use Bioture\Exam\Infrastructure\Persistence\Doctrine\Entity\ExamAttemptEntity;
 
 class StudentAnswerMapper
 {
-    public function __construct(
-        private readonly TaskItemMapper $taskItemMapper
-    ) {
-    }
-
     public function toDomain(StudentAnswerEntity $entity, ExamAttempt $examAttempt): StudentAnswer
     {
-        // Construct TaskItem hierarchy (simplified)
-        $taskItemEntity = $entity->getTaskItem();
-        $groupEntity = $taskItemEntity->getGroup();
+        // We do NOT need to reconstruct the full TaskItem domain graph here unless requested.
+        // The StudentAnswer now only needs TaskCode.
+        // $entity->getTaskItem() gives us the entity, which has the code.
 
-        if (!$groupEntity instanceof \Bioture\Exam\Infrastructure\Persistence\Doctrine\Entity\TaskGroupEntity) {
-            throw new \RuntimeException('TaskItem must have a TaskGroup');
-        }
+        $taskCodeValue = $entity->getTaskItem()->getCode();
+        $taskCode = new \Bioture\Exam\Domain\Model\ValueObject\TaskCode($taskCodeValue);
 
-        $examEntity = $groupEntity->getExam();
-
-        if (!$examEntity instanceof \Bioture\Exam\Infrastructure\Persistence\Doctrine\Entity\ExamEntity) {
-            throw new \RuntimeException('TaskGroup must have an Exam');
-        }
-
-        $domainTaskItem = $this->taskItemMapper->toDomain(
-            $taskItemEntity,
-            new TaskGroupMapper($this->taskItemMapper, new AssetMapper())->toDomain(
-                $groupEntity,
-                new ExamMapper(new TaskGroupMapper($this->taskItemMapper, new AssetMapper()))->toDomain($examEntity)
-            )
-        );
-
-        $domain = new StudentAnswer($examAttempt, $domainTaskItem);
+        $domain = new StudentAnswer($examAttempt, $taskCode, $entity->getPayload());
         $this->setPrivateProperty($domain, 'id', $entity->getId());
-        $domain->setPayload($entity->getPayload());
 
         return $domain;
     }
 
     public function toEntityWithContext(StudentAnswer $domain, ExamAttemptEntity $parentAttempt): StudentAnswerEntity
     {
-        $taskItemEntity = $this->taskItemMapper->toEntity($domain->getTaskItem());
+        // Resolve TaskItemEntity from Parent Exam using TaskCode
+        $targetCode = $domain->getTaskCode()->getValue();
+        $foundTaskItemEntity = null;
 
-        $entity = new StudentAnswerEntity($parentAttempt, $taskItemEntity);
+        // Traverse: ExamEntity -> TaskGroupEntities -> TaskItemEntities
+        $examEntity = $parentAttempt->getExam();
+        foreach ($examEntity->getTaskGroups() as $groupEntity) {
+            foreach ($groupEntity->getItems() as $itemEntity) {
+                if ($itemEntity->getCode() === $targetCode) {
+                    $foundTaskItemEntity = $itemEntity;
+                    break 2;
+                }
+            }
+        }
+
+        if (!$foundTaskItemEntity) {
+            throw new \RuntimeException(sprintf("TaskItem with code '%s' not found in Exam '%s'", $targetCode, $examEntity->getExamId()));
+        }
+
+        $entity = new StudentAnswerEntity($parentAttempt, $foundTaskItemEntity);
         $entity->setPayload($domain->getPayload());
 
         return $entity;

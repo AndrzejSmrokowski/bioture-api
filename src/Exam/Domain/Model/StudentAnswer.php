@@ -7,12 +7,11 @@ class StudentAnswer
     /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
-    /** @var array<string, mixed>|string|null */
-    private array|string|null $payload = null;
-
     public function __construct(
         private readonly ExamAttempt $examAttempt,
-        private readonly TaskItem $taskItem
+        private readonly \Bioture\Exam\Domain\Model\ValueObject\TaskCode $taskCode,
+        /** @var array<string, mixed>|string|null */
+        private array|string|null $payload = null
     ) {
     }
 
@@ -26,9 +25,9 @@ class StudentAnswer
         return $this->examAttempt;
     }
 
-    public function getTaskItem(): TaskItem
+    public function getTaskCode(): \Bioture\Exam\Domain\Model\ValueObject\TaskCode
     {
-        return $this->taskItem;
+        return $this->taskCode;
     }
 
     /**
@@ -42,7 +41,7 @@ class StudentAnswer
     /**
      * @param array<string, mixed>|string|null $payload
      */
-    public function setPayload(array|string|null $payload): self
+    public function updatePayload(array|string|null $payload): self
     {
         $this->payload = $payload;
         return $this;

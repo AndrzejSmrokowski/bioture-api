@@ -50,6 +50,10 @@ class ExamAttemptEntity
     #[Groups(['exam_attempt:read'])]
     private ?\DateTimeImmutable $checkedAt = null;
 
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Groups(['exam_attempt:read'])]
+    private ?string $userId = null;
+
     /**
      * @var Collection<int, StudentAnswerEntity>
      */
@@ -119,6 +123,17 @@ class ExamAttemptEntity
     public function setCheckedAt(?\DateTimeImmutable $checkedAt): self
     {
         $this->checkedAt = $checkedAt;
+        return $this;
+    }
+
+    public function getUserId(): ?string
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(?string $userId): self
+    {
+        $this->userId = $userId;
         return $this;
     }
 

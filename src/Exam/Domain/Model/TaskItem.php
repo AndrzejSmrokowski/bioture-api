@@ -4,6 +4,9 @@ namespace Bioture\Exam\Domain\Model;
 
 use Bioture\Exam\Domain\Model\Enum\AnswerFormat;
 use Bioture\Exam\Domain\Model\Enum\TaskType;
+use Bioture\Exam\Domain\Model\ValueObject\DeterministicKey;
+use Bioture\Exam\Domain\Model\ValueObject\GradingSpec;
+use Bioture\Exam\Domain\Model\ValueObject\TaskCode;
 
 class TaskItem
 {
@@ -13,15 +16,14 @@ class TaskItem
     /** @var array<string, mixed>|null */
     private ?array $options = null;
 
-    /** @var array<string, mixed> */
-    private array $answerKey = [];
+    private ?DeterministicKey $deterministicKey = null;
 
     public function __construct(
         private readonly TaskGroup $group,
-        private readonly string $code, // e.g., "1.1"
+        private readonly \Bioture\Exam\Domain\Model\ValueObject\TaskCode $code,
         private readonly TaskType $type,
         private readonly AnswerFormat $answerFormat,
-        private readonly int $maxPoints,
+        private readonly \Bioture\Exam\Domain\Model\ValueObject\GradingSpec $gradingSpec,
         private readonly string $prompt,
     ) {
         $group->addItem($this);
@@ -37,7 +39,7 @@ class TaskItem
         return $this->group;
     }
 
-    public function getCode(): string
+    public function getCode(): \Bioture\Exam\Domain\Model\ValueObject\TaskCode
     {
         return $this->code;
     }
@@ -54,12 +56,17 @@ class TaskItem
 
     public function getMaxPoints(): int
     {
-        return $this->maxPoints;
+        return $this->gradingSpec->maxPoints;
     }
 
     public function getPrompt(): string
     {
         return $this->prompt;
+    }
+
+    public function getGradingSpec(): \Bioture\Exam\Domain\Model\ValueObject\GradingSpec
+    {
+        return $this->gradingSpec;
     }
 
     /** @return array<string, mixed>|null */
@@ -75,18 +82,17 @@ class TaskItem
         return $this;
     }
 
-    // ... keeping other getters/setters simple for now
-
-    /** @param array<string, mixed> $answerKey */
-    public function setAnswerKey(array $answerKey): self
+    public function setDeterministicKey(DeterministicKey $key): self
     {
-        $this->answerKey = $answerKey;
+        if ($this->gradingSpec->type !== \Bioture\Exam\Domain\Model\ValueObject\GradingSpec::TYPE_DETERMINISTIC) {
+            throw new \DomainException('Cannot set deterministic key for non-deterministic grading spec.');
+        }
+        $this->deterministicKey = $key;
         return $this;
     }
 
-    /** @return array<string, mixed> */
-    public function getAnswerKey(): array
+    public function getDeterministicKey(): ?DeterministicKey
     {
-        return $this->answerKey;
+        return $this->deterministicKey;
     }
 }

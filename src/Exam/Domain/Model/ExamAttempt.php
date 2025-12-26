@@ -17,8 +17,6 @@ class ExamAttempt
 
     private ?\DateTimeImmutable $checkedAt = null;
 
-    private ?string $userId = null; // e.g. 'student-uuid'
-
     /**
      * @var StudentAnswer[]
      */
@@ -30,9 +28,69 @@ class ExamAttempt
     private array $evaluations = [];
 
     public function __construct(
-        private readonly Exam $exam
+        private readonly Exam $exam,
+        private readonly string $userId
     ) {
         $this->startedAt = new \DateTimeImmutable();
+    }
+
+    public function submit(): void
+    {
+        if ($this->status === ExamAttemptStatus::GRADED) {
+            throw new \DomainException('Cannot submit an already graded exam.');
+        }
+
+        if ($this->status === ExamAttemptStatus::SUBMITTED) {
+            return;
+        }
+
+        $this->status = ExamAttemptStatus::SUBMITTED;
+        $this->submittedAt = new \DateTimeImmutable();
+    }
+
+    public function finishGrading(): void
+    {
+        if ($this->status === ExamAttemptStatus::STARTED) {
+            throw new \DomainException('Cannot grade an unsubmitted exam.');
+        }
+
+        if ($this->status === ExamAttemptStatus::GRADED) {
+            return;
+        }
+
+        $this->status = ExamAttemptStatus::GRADED;
+        $this->checkedAt = new \DateTimeImmutable();
+    }
+
+    /**
+     * @param array<string, mixed>|string $payload
+     */
+    public function recordAnswer(TaskItem $taskItem, array|string $payload): StudentAnswer
+    {
+        // Replace existing answer for the same TaskItem (by Code)
+        foreach ($this->answers as $existing) {
+            if ($existing->getTaskCode()->equals($taskItem->getCode())) {
+                $existing->updatePayload($payload);
+                return $existing;
+            }
+        }
+
+        $answer = new StudentAnswer($this, $taskItem->getCode(), $payload);
+        $this->answers[] = $answer;
+        return $answer;
+    }
+
+    public function recordEvaluation(TaskEvaluation $evaluation): self
+    {
+        // Replace strategy: Remove existing evaluation for this task code
+        // (Simple strategy A from requirements)
+        $this->evaluations = array_filter(
+            $this->evaluations,
+            fn (TaskEvaluation $e): bool => !$e->getTaskCode()->equals($evaluation->getTaskCode())
+        );
+
+        $this->evaluations[] = $evaluation;
+        return $this;
     }
 
     public function getId(): ?int
@@ -45,26 +103,14 @@ class ExamAttempt
         return $this->exam;
     }
 
-    public function getUserId(): ?string
+    public function getUserId(): string
     {
         return $this->userId;
-    }
-
-    public function setUserId(?string $userId): self
-    {
-        $this->userId = $userId;
-        return $this;
     }
 
     public function getStatus(): ExamAttemptStatus
     {
         return $this->status;
-    }
-
-    public function setStatus(ExamAttemptStatus $status): self
-    {
-        $this->status = $status;
-        return $this;
     }
 
     public function getStartedAt(): \DateTimeImmutable
@@ -77,21 +123,9 @@ class ExamAttempt
         return $this->submittedAt;
     }
 
-    public function setSubmittedAt(?\DateTimeImmutable $submittedAt): self
-    {
-        $this->submittedAt = $submittedAt;
-        return $this;
-    }
-
     public function getCheckedAt(): ?\DateTimeImmutable
     {
         return $this->checkedAt;
-    }
-
-    public function setCheckedAt(?\DateTimeImmutable $checkedAt): self
-    {
-        $this->checkedAt = $checkedAt;
-        return $this;
     }
 
     /**
@@ -102,15 +136,11 @@ class ExamAttempt
         return $this->answers;
     }
 
+    /**
+     * @internal Used by Doctrine/Mapper only
+     */
     public function addAnswer(StudentAnswer $answer): self
     {
-        // Replace existing answer for the same TaskItem
-        foreach ($this->answers as $key => $existing) {
-            if ($existing->getTaskItem()->getCode() === $answer->getTaskItem()->getCode()) {
-                $this->answers[$key] = $answer;
-                return $this;
-            }
-        }
         $this->answers[] = $answer;
         return $this;
     }
@@ -123,6 +153,9 @@ class ExamAttempt
         return $this->evaluations;
     }
 
+    /**
+     * @internal Used by Doctrine/Mapper only
+     */
     public function addEvaluation(TaskEvaluation $evaluation): self
     {
         $this->evaluations[] = $evaluation;

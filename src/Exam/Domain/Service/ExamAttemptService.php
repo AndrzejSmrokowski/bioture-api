@@ -17,9 +17,9 @@ class ExamAttemptService
     ) {
     }
 
-    public function startExam(Exam $exam): ExamAttempt
+    public function startExam(Exam $exam, string $userId): ExamAttempt
     {
-        $attempt = new ExamAttempt($exam);
+        $attempt = new ExamAttempt($exam, $userId);
         $this->repository->save($attempt);
 
         return $attempt;
@@ -32,15 +32,7 @@ class ExamAttemptService
      */
     public function saveAnswer(ExamAttempt $attempt, TaskItem $task, string|array $payload): StudentAnswer
     {
-        $existing = array_find($attempt->getAnswers(), fn ($ans): bool => $ans->getTaskItem()->getId() && $task->getId() && $ans->getTaskItem()->getId() === $task->getId());
-        if ($existing) {
-            $existing->setPayload($payload);
-            $answer = $existing;
-        } else {
-            $answer = new StudentAnswer($attempt, $task);
-            $answer->setPayload($payload);
-            $attempt->addAnswer($answer); // Updates collection side
-        }
+        $answer = $attempt->recordAnswer($task, $payload);
 
         $this->repository->save($attempt);
         return $answer;
@@ -48,8 +40,7 @@ class ExamAttemptService
 
     public function submitExam(ExamAttempt $attempt): void
     {
-        $attempt->setSubmittedAt(new \DateTimeImmutable());
-        $attempt->setStatus(ExamAttemptStatus::SUBMITTED);
+        $attempt->submit();
 
         // Trigger AI Check Immediately for this workflow
         $this->aiChecker->checkAttempt($attempt);

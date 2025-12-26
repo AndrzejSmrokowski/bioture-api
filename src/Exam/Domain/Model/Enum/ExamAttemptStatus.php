@@ -7,4 +7,5 @@ enum ExamAttemptStatus: string
     case STARTED = 'started';
     case SUBMITTED = 'submitted';
     case CHECKED = 'checked';
+    case GRADED = 'graded';
 }

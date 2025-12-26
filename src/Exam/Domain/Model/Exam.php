@@ -18,10 +18,10 @@ class Exam
     private readonly Collection $taskGroups;
 
     public function __construct(
-        private string $examId,
-        private int $year,
-        private Month $month,
-        private ExamType $type,
+        private readonly string $examId,
+        private readonly int $year,
+        private readonly Month $month,
+        private readonly ExamType $type,
     ) {
         $this->taskGroups = new ArrayCollection();
     }
@@ -36,21 +36,9 @@ class Exam
         return $this->examId;
     }
 
-    public function setExamId(string $examId): self
-    {
-        $this->examId = $examId;
-        return $this;
-    }
-
     public function getYear(): int
     {
         return $this->year;
-    }
-
-    public function setYear(int $year): self
-    {
-        $this->year = $year;
-        return $this;
     }
 
     public function getMonth(): Month
@@ -58,21 +46,9 @@ class Exam
         return $this->month;
     }
 
-    public function setMonth(Month $month): self
-    {
-        $this->month = $month;
-        return $this;
-    }
-
     public function getType(): ExamType
     {
         return $this->type;
-    }
-
-    public function setType(ExamType $type): self
-    {
-        $this->type = $type;
-        return $this;
     }
 
     /**

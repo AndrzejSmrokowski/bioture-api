@@ -17,13 +17,19 @@ class ExamAttemptMapper
     public function toDomain(ExamAttemptEntity $entity): ExamAttempt
     {
         $examDomain = $this->examMapper->toDomain($entity->getExam());
-        $domain = new ExamAttempt($examDomain);
+        $userId = $entity->getUserId();
+
+        if ($userId === null) {
+            throw new \RuntimeException("ExamAttempt {$entity->getId()} has no userId. Data integrity violation.");
+        }
+
+        $domain = new ExamAttempt($examDomain, $userId);
 
         $this->setPrivateProperty($domain, 'id', $entity->getId());
-        $domain->setStatus($entity->getStatus());
+        $this->setPrivateProperty($domain, 'status', $entity->getStatus());
         $this->setPrivateProperty($domain, 'startedAt', $entity->getStartedAt());
-        $domain->setSubmittedAt($entity->getSubmittedAt());
-        $domain->setCheckedAt($entity->getCheckedAt());
+        $this->setPrivateProperty($domain, 'submittedAt', $entity->getSubmittedAt());
+        $this->setPrivateProperty($domain, 'checkedAt', $entity->getCheckedAt());
 
         foreach ($entity->getAnswers() as $answerEntity) {
             $answerDomain = $this->answerMapper->toDomain($answerEntity, $domain);

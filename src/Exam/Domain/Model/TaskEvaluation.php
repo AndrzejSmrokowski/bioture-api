@@ -7,24 +7,73 @@ class TaskEvaluation
     /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
-    private int $awardedPoints = 0;
+    private readonly \Bioture\Exam\Domain\Model\ValueObject\TaskCode $taskCode;
+
+    private readonly int $awardedPoints;
 
     private ?string $rationale = null;
 
-    /** @var array<string, mixed> */
+    /** @var \Bioture\Exam\Domain\Model\Enum\EvaluationFlag[] */
     private array $flags = [];
-
-    private string $grader = 'AI'; // e.g. 'AI', 'MANUAL'
-
-    private ?string $graderVersion = null; // e.g. 'gpt-4'
 
     private readonly \DateTimeImmutable $createdAt;
 
-    public function __construct(
+    private function __construct(
         private readonly ExamAttempt $examAttempt,
-        private readonly TaskItem $taskItem
+        TaskItem $taskItem,
+        int $awardedPoints,
+        private readonly \Bioture\Exam\Domain\Model\Enum\GraderType $grader,
+        private readonly ?string $graderVersion = null
     ) {
+        $this->ensurePointsAreValid($awardedPoints, $taskItem);
+
+        $this->taskCode = $taskItem->getCode();
+        $this->awardedPoints = $awardedPoints;
         $this->createdAt = new \DateTimeImmutable();
+    }
+
+    public static function createAi(
+        ExamAttempt $attempt,
+        TaskItem $item,
+        int $points,
+        string $aiModelVersion,
+        ?string $rationale = null
+    ): self {
+        $evaluation = new self($attempt, $item, $points, \Bioture\Exam\Domain\Model\Enum\GraderType::AI, $aiModelVersion);
+        if ($rationale) {
+            $evaluation->setRationale($rationale);
+        }
+        return $evaluation;
+    }
+
+    public static function createManual(
+        ExamAttempt $attempt,
+        TaskItem $item,
+        int $points,
+        string $graderName,
+        ?string $rationale = null
+    ): self {
+        $evaluation = new self($attempt, $item, $points, \Bioture\Exam\Domain\Model\Enum\GraderType::MANUAL, $graderName);
+        if ($rationale) {
+            $evaluation->setRationale($rationale);
+        }
+        return $evaluation;
+    }
+
+    private function ensurePointsAreValid(int $points, TaskItem $item): void
+    {
+        if ($points < 0) {
+            throw new \InvalidArgumentException('Awarded points cannot be negative.');
+        }
+
+        if ($points > $item->getMaxPoints()) {
+            throw new \InvalidArgumentException(sprintf(
+                'Awarded points (%d) cannot exceed max points (%d) for task %s.',
+                $points,
+                $item->getMaxPoints(),
+                $item->getCode()
+            ));
+        }
     }
 
     public function getId(): ?int
@@ -37,20 +86,14 @@ class TaskEvaluation
         return $this->examAttempt;
     }
 
-    public function getTaskItem(): TaskItem
+    public function getTaskCode(): \Bioture\Exam\Domain\Model\ValueObject\TaskCode
     {
-        return $this->taskItem;
+        return $this->taskCode;
     }
 
     public function getAwardedPoints(): int
     {
         return $this->awardedPoints;
-    }
-
-    public function setAwardedPoints(int $awardedPoints): self
-    {
-        $this->awardedPoints = $awardedPoints;
-        return $this;
     }
 
     public function getRationale(): ?string
@@ -64,39 +107,38 @@ class TaskEvaluation
         return $this;
     }
 
-    /** @return array<string, mixed> */
+    /** @return \Bioture\Exam\Domain\Model\Enum\EvaluationFlag[] */
     public function getFlags(): array
     {
         return $this->flags;
     }
 
-    /** @param array<string, mixed> $flags */
+    /** @param \Bioture\Exam\Domain\Model\Enum\EvaluationFlag[] $flags */
     public function setFlags(array $flags): self
     {
+        foreach ($flags as $flag) {
+            // Type hint ensures instance of EvaluationFlag.
+        }
         $this->flags = $flags;
         return $this;
     }
 
-    public function getGrader(): string
+    public function addFlag(\Bioture\Exam\Domain\Model\Enum\EvaluationFlag $flag): self
     {
-        return $this->grader;
+        if (!in_array($flag, $this->flags, true)) {
+            $this->flags[] = $flag;
+        }
+        return $this;
     }
 
-    public function setGrader(string $grader): self
+    public function getGrader(): \Bioture\Exam\Domain\Model\Enum\GraderType
     {
-        $this->grader = $grader;
-        return $this;
+        return $this->grader;
     }
 
     public function getGraderVersion(): ?string
     {
         return $this->graderVersion;
-    }
-
-    public function setGraderVersion(?string $graderVersion): self
-    {
-        $this->graderVersion = $graderVersion;
-        return $this;
     }
 
     public function getCreatedAt(): \DateTimeImmutable
