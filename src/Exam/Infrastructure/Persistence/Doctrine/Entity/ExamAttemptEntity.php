@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Infrastructure\Persistence\Doctrine\Entity;
 
 use ApiPlatform\Metadata\ApiResource;

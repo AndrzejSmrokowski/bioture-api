@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Infrastructure\Persistence\Doctrine\Mapper;
 
 use Bioture\Exam\Domain\Model\StudentAnswer;
 use Bioture\Exam\Infrastructure\Persistence\Doctrine\Entity\StudentAnswerEntity;
 use Bioture\Exam\Domain\Model\ExamAttempt;
 use Bioture\Exam\Infrastructure\Persistence\Doctrine\Entity\ExamAttemptEntity;
+use Bioture\Exam\Domain\Model\ValueObject\TaskCode;
 
 class StudentAnswerMapper
 {
@@ -16,7 +19,7 @@ class StudentAnswerMapper
         // $entity->getTaskItem() gives us the entity, which has the code.
 
         $taskCodeValue = $entity->getTaskItem()->getCode();
-        $taskCode = new \Bioture\Exam\Domain\Model\ValueObject\TaskCode($taskCodeValue);
+        $taskCode = new TaskCode($taskCodeValue);
 
         $domain = new StudentAnswer($examAttempt, $taskCode, $entity->getPayload());
         $this->setPrivateProperty($domain, 'id', $entity->getId());

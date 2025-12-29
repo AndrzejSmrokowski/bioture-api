@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Domain\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -66,7 +68,6 @@ class TaskGroup
 
     public function addItem(TaskItem $item): self
     {
-        /** @phpstan-ignore-next-line */
         if (!$this->items->contains($item)) {
             $this->items->add($item);
             // $item->setGroup($this);
@@ -82,7 +83,6 @@ class TaskGroup
 
     public function addAsset(Asset $asset): self
     {
-        /** @phpstan-ignore-next-line */
         if (!$this->assets->contains($asset)) {
             $this->assets->add($asset);
         }

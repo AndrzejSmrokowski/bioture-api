@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Domain\Model\ValueObject;
 
 final readonly class TaskCode implements \Stringable

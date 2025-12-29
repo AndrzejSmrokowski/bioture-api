@@ -1,6 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Domain\Model;
+
+use Bioture\Exam\Domain\Model\ValueObject\TaskCode;
 
 class StudentAnswer
 {
@@ -9,9 +13,11 @@ class StudentAnswer
 
     public function __construct(
         private readonly ExamAttempt $examAttempt,
-        private readonly \Bioture\Exam\Domain\Model\ValueObject\TaskCode $taskCode,
-        /** @var array<string, mixed>|string|null */
-        private array|string|null $payload = null
+        private readonly TaskCode $taskCode,
+        /** @var array<string, mixed>|null */
+        private ?array $payload,
+        private readonly int $schemaVersion = 1,
+        private readonly ?string $rawText = null
     ) {
     }
 
@@ -25,25 +31,30 @@ class StudentAnswer
         return $this->examAttempt;
     }
 
-    public function getTaskCode(): \Bioture\Exam\Domain\Model\ValueObject\TaskCode
+    public function getTaskCode(): TaskCode
     {
         return $this->taskCode;
     }
 
-    /**
-     * @return array<string, mixed>|string|null
-     */
-    public function getPayload(): array|string|null
+    /** @return array<string, mixed>|null */
+    public function getPayload(): ?array
     {
         return $this->payload;
     }
 
-    /**
-     * @param array<string, mixed>|string|null $payload
-     */
-    public function updatePayload(array|string|null $payload): self
+    public function getSchemaVersion(): int
+    {
+        return $this->schemaVersion;
+    }
+
+    public function getRawText(): ?string
+    {
+        return $this->rawText;
+    }
+
+    /** @param array<string, mixed>|null $payload */
+    public function updatePayload(?array $payload): void
     {
         $this->payload = $payload;
-        return $this;
     }
 }

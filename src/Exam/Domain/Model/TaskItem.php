@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Domain\Model;
 
 use Bioture\Exam\Domain\Model\Enum\AnswerFormat;
@@ -7,14 +9,12 @@ use Bioture\Exam\Domain\Model\Enum\TaskType;
 use Bioture\Exam\Domain\Model\ValueObject\DeterministicKey;
 use Bioture\Exam\Domain\Model\ValueObject\GradingSpec;
 use Bioture\Exam\Domain\Model\ValueObject\TaskCode;
+use Bioture\Exam\Domain\Model\Enum\BiologySection;
 
 class TaskItem
 {
     /** @phpstan-ignore-next-line */
     private ?int $id = null;
-
-    /** @var array<string, mixed>|null */
-    private ?array $options = null;
 
     private ?DeterministicKey $deterministicKey = null;
 
@@ -25,8 +25,34 @@ class TaskItem
         private readonly AnswerFormat $answerFormat,
         private readonly \Bioture\Exam\Domain\Model\ValueObject\GradingSpec $gradingSpec,
         private readonly string $prompt,
+        /** @var array<string, mixed>|null */
+        private ?array $options = null,
+        /** @var BiologySection[] */
+        private readonly array $sections = [],
+        private readonly ?string $gradingSpecHash = null
     ) {
+        $this->ensureOptionsAreValid($type, $options);
         $group->addItem($this);
+    }
+
+    /** @return BiologySection[] */
+    public function getSections(): array
+    {
+        return $this->sections;
+    }
+
+    /** @param array<string, mixed>|null $options */
+    private function ensureOptionsAreValid(TaskType $type, ?array $options): void
+    {
+        if (($type === TaskType::SINGLE_CHOICE || $type === TaskType::MULTI_CHOICE) && ($options === null || !isset($options['choices']) || !is_array($options['choices']))) {
+            throw new \InvalidArgumentException(sprintf('Task type "%s" requires "choices" in options.', $type->value));
+        }
+
+        // Add more validations for Matching etc. as needed.
+        if ($type === TaskType::MATCHING) {
+            // Example validation for matching
+            // if (!isset($options['sources']) || !isset($options['targets'])) ...
+        }
     }
 
     public function getId(): ?int
@@ -69,6 +95,11 @@ class TaskItem
         return $this->gradingSpec;
     }
 
+    public function getGradingSpecHash(): ?string
+    {
+        return $this->gradingSpecHash;
+    }
+
     /** @return array<string, mixed>|null */
     public function getOptions(): ?array
     {
@@ -84,7 +115,7 @@ class TaskItem
 
     public function setDeterministicKey(DeterministicKey $key): self
     {
-        if ($this->gradingSpec->type !== \Bioture\Exam\Domain\Model\ValueObject\GradingSpec::TYPE_DETERMINISTIC) {
+        if ($this->gradingSpec->type !== \Bioture\Exam\Domain\Model\Enum\GradingSpecType::DETERMINISTIC) {
             throw new \DomainException('Cannot set deterministic key for non-deterministic grading spec.');
         }
         $this->deterministicKey = $key;

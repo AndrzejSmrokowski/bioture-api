@@ -1,6 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Domain\Model;
+
+use Bioture\Exam\Domain\Model\Enum\AssetType;
 
 class Asset
 {
@@ -9,8 +13,8 @@ class Asset
 
     public function __construct(
         private readonly TaskGroup $group,
-        private readonly string $type, // 'image', 'table', 'chart'
-        private readonly string $path, // or url
+        private readonly AssetType $type,
+        private readonly string $uri, // local path or remote url
         private readonly ?string $altText = null,
     ) {
         $group->addAsset($this);
@@ -26,14 +30,14 @@ class Asset
         return $this->group;
     }
 
-    public function getType(): string
+    public function getType(): AssetType
     {
         return $this->type;
     }
 
-    public function getPath(): string
+    public function getUri(): string
     {
-        return $this->path;
+        return $this->uri;
     }
 
     public function getAltText(): ?string

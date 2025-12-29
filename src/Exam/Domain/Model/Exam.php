@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Domain\Model;
 
 use Bioture\Exam\Domain\Model\Enum\ExamType;
@@ -22,6 +24,7 @@ class Exam
         private readonly int $year,
         private readonly Month $month,
         private readonly ExamType $type,
+        private readonly int $version = 1
     ) {
         $this->taskGroups = new ArrayCollection();
     }
@@ -51,6 +54,11 @@ class Exam
         return $this->type;
     }
 
+    public function getVersion(): int
+    {
+        return $this->version;
+    }
+
     /**
      * @return Collection<int, TaskGroup>
      */
@@ -61,7 +69,6 @@ class Exam
 
     public function addTaskGroup(TaskGroup $group): self
     {
-        /** @phpstan-ignore-next-line */
         if (!$this->taskGroups->contains($group)) {
             $this->taskGroups->add($group);
             // $group->setExam($this); // Managed by TaskGroup constructor usually or setter

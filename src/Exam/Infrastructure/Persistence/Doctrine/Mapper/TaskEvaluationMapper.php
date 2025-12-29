@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Infrastructure\Persistence\Doctrine\Mapper;
 
 use Bioture\Exam\Domain\Model\ExamAttempt;
@@ -54,11 +56,15 @@ class TaskEvaluationMapper
 
         // ... (Using the same TaskGroupMapper/ExamMapper chain from before) ...
 
+        $assetMapper = new AssetMapper();
+        $taskGroupMapper = new TaskGroupMapper($this->taskItemMapper, $assetMapper);
+        $examMapper = new ExamMapper($taskGroupMapper);
+
         $taskItemDomain = $this->taskItemMapper->toDomain(
             $taskItemEntity,
-            new TaskGroupMapper($this->taskItemMapper, new AssetMapper())->toDomain(
+            $taskGroupMapper->toDomain(
                 $groupEntity,
-                new ExamMapper(new TaskGroupMapper($this->taskItemMapper, new AssetMapper()))->toDomain($examEntity)
+                $examMapper->toDomain($examEntity)
             )
         );
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Infrastructure\Persistence\Doctrine\Mapper;
 
 use Bioture\Exam\Domain\Model\Asset;
@@ -21,7 +23,7 @@ class AssetMapper
 
         return new Asset(
             $group,
-            $entity->getType(),
+            \Bioture\Exam\Domain\Model\Enum\AssetType::from($entity->getType()),
             $entity->getPath(),
             $entity->getAltText()
         );
@@ -30,8 +32,8 @@ class AssetMapper
     public function toEntity(Asset $domain): AssetEntity
     {
         $entity = new AssetEntity();
-        $entity->setType($domain->getType());
-        $entity->setPath($domain->getPath());
+        $entity->setType($domain->getType()->value);
+        $entity->setPath($domain->getUri());
         $entity->setAltText($domain->getAltText());
         // Parent setting handled by parent mapper
         return $entity;

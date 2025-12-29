@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Infrastructure\Persistence\Doctrine\Mapper;
 
 use Bioture\Exam\Domain\Model\TaskGroup;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Infrastructure\Service;
 
 use Bioture\Exam\Domain\Model\ExamAttempt;
@@ -50,7 +52,7 @@ class MockAIChecker implements AICheckerInterface
                 "Mock AI Feedback: Answer length was " . strlen($content) . ". Score assigned: $score/$maxPoints."
             );
 
-            $attempt->recordEvaluation($evaluation);
+            $attempt->finalizeEvaluation($evaluation);
         }
 
         $attempt->finishGrading();

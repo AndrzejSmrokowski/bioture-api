@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Infrastructure\Persistence\Doctrine\Mapper;
 
 use Bioture\Exam\Domain\Model\TaskItem;
@@ -13,10 +15,8 @@ class TaskItemMapper
     {
         // Construct basic deterministic/manual GradingSpec from legacy entity fields
         // This is a migration adapter logic.
-        $spec = new \Bioture\Exam\Domain\Model\ValueObject\GradingSpec(
-            \Bioture\Exam\Domain\Model\ValueObject\GradingSpec::TYPE_DETERMINISTIC, // Defaulting for MVP
-            $entity->getMaxPoints(),
-            [] // Rules would need parsing from gradingRubric in future
+        $spec = \Bioture\Exam\Domain\Model\ValueObject\GradingSpec::deterministic(
+            $entity->getMaxPoints()
         );
 
         $domain = new TaskItem(
@@ -33,7 +33,10 @@ class TaskItemMapper
         // Map legacy answerKey to DeterministicKey if present
         $options = $entity->getAnswerKey();
         if ($options !== []) {
-            $domain->setDeterministicKey(new \Bioture\Exam\Domain\Model\ValueObject\DeterministicKey($options));
+            $domain->setDeterministicKey(new \Bioture\Exam\Domain\Model\ValueObject\DeterministicKey(
+                $options,
+                $entity->getAnswerFormat()
+            ));
         }
 
         $this->setPrivateProperty($domain, 'id', $entity->getId());

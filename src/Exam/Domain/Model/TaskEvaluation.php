@@ -1,35 +1,52 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Domain\Model;
+
+use Bioture\Exam\Domain\Model\Enum\EvaluationFlag;
+use Bioture\Exam\Domain\Model\Enum\ExamAttemptStatus;
+use Bioture\Exam\Domain\Model\Enum\GraderType;
+use Bioture\Exam\Domain\Model\ValueObject\TaskCode;
+use DateTimeImmutable;
+use DomainException;
+use InvalidArgumentException;
 
 class TaskEvaluation
 {
     /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
-    private readonly \Bioture\Exam\Domain\Model\ValueObject\TaskCode $taskCode;
+    private readonly TaskCode $taskCode;
 
     private readonly int $awardedPoints;
 
     private ?string $rationale = null;
 
-    /** @var \Bioture\Exam\Domain\Model\Enum\EvaluationFlag[] */
+    /** @var EvaluationFlag[] */
     private array $flags = [];
 
-    private readonly \DateTimeImmutable $createdAt;
+    private readonly DateTimeImmutable $createdAt;
+
+    private bool $isFinal = true;
+
+    public const PRIORITY_MANUAL = 100;
+    public const int PRIORITY_AI = 10;
 
     private function __construct(
         private readonly ExamAttempt $examAttempt,
         TaskItem $taskItem,
         int $awardedPoints,
-        private readonly \Bioture\Exam\Domain\Model\Enum\GraderType $grader,
+        private readonly GraderType $grader,
+        private readonly int $priority,
         private readonly ?string $graderVersion = null
     ) {
         $this->ensurePointsAreValid($awardedPoints, $taskItem);
+        $this->ensureAttemptIsReadyForGrading($examAttempt);
 
         $this->taskCode = $taskItem->getCode();
         $this->awardedPoints = $awardedPoints;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public static function createAi(
@@ -39,7 +56,14 @@ class TaskEvaluation
         string $aiModelVersion,
         ?string $rationale = null
     ): self {
-        $evaluation = new self($attempt, $item, $points, \Bioture\Exam\Domain\Model\Enum\GraderType::AI, $aiModelVersion);
+        $evaluation = new self(
+            $attempt,
+            $item,
+            $points,
+            GraderType::AI,
+            self::PRIORITY_AI,
+            $aiModelVersion
+        );
         if ($rationale) {
             $evaluation->setRationale($rationale);
         }
@@ -53,7 +77,14 @@ class TaskEvaluation
         string $graderName,
         ?string $rationale = null
     ): self {
-        $evaluation = new self($attempt, $item, $points, \Bioture\Exam\Domain\Model\Enum\GraderType::MANUAL, $graderName);
+        $evaluation = new self(
+            $attempt,
+            $item,
+            $points,
+            GraderType::MANUAL,
+            self::PRIORITY_MANUAL,
+            $graderName
+        );
         if ($rationale) {
             $evaluation->setRationale($rationale);
         }
@@ -63,15 +94,31 @@ class TaskEvaluation
     private function ensurePointsAreValid(int $points, TaskItem $item): void
     {
         if ($points < 0) {
-            throw new \InvalidArgumentException('Awarded points cannot be negative.');
+            throw new InvalidArgumentException('Awarded points cannot be negative.');
         }
 
         if ($points > $item->getMaxPoints()) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Awarded points (%d) cannot exceed max points (%d) for task %s.',
                 $points,
                 $item->getMaxPoints(),
                 $item->getCode()
+            ));
+        }
+    }
+
+    private function ensureAttemptIsReadyForGrading(ExamAttempt $attempt): void
+    {
+        // Logic: You can grade if it's SUBMITTED or CHECKED.
+        // Or if the system allows grading on the fly (unlikely for strict exam mode)
+        // User requested: "ensure attempt has status SUBMITTED or similar"
+
+        $status = $attempt->getStatus();
+        if (!in_array($status, [ExamAttemptStatus::SUBMITTED, ExamAttemptStatus::CHECKED, ExamAttemptStatus::GRADED], true) // Re-grading allowed?
+        ) {
+            throw new DomainException(sprintf(
+                'Cannot create evaluation for exam attempt with status "%s". Attempt must be submitted.',
+                $status->value
             ));
         }
     }
@@ -86,7 +133,7 @@ class TaskEvaluation
         return $this->examAttempt;
     }
 
-    public function getTaskCode(): \Bioture\Exam\Domain\Model\ValueObject\TaskCode
+    public function getTaskCode(): TaskCode
     {
         return $this->taskCode;
     }
@@ -107,13 +154,13 @@ class TaskEvaluation
         return $this;
     }
 
-    /** @return \Bioture\Exam\Domain\Model\Enum\EvaluationFlag[] */
+    /** @return EvaluationFlag[] */
     public function getFlags(): array
     {
         return $this->flags;
     }
 
-    /** @param \Bioture\Exam\Domain\Model\Enum\EvaluationFlag[] $flags */
+    /** @param EvaluationFlag[] $flags */
     public function setFlags(array $flags): self
     {
         foreach ($flags as $flag) {
@@ -123,7 +170,7 @@ class TaskEvaluation
         return $this;
     }
 
-    public function addFlag(\Bioture\Exam\Domain\Model\Enum\EvaluationFlag $flag): self
+    public function addFlag(EvaluationFlag $flag): self
     {
         if (!in_array($flag, $this->flags, true)) {
             $this->flags[] = $flag;
@@ -131,7 +178,7 @@ class TaskEvaluation
         return $this;
     }
 
-    public function getGrader(): \Bioture\Exam\Domain\Model\Enum\GraderType
+    public function getGrader(): GraderType
     {
         return $this->grader;
     }
@@ -141,8 +188,24 @@ class TaskEvaluation
         return $this->graderVersion;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function isFinal(): bool
+    {
+        return $this->isFinal;
+    }
+
+    public function setIsFinal(bool $isFinal): self
+    {
+        $this->isFinal = $isFinal;
+        return $this;
     }
 }

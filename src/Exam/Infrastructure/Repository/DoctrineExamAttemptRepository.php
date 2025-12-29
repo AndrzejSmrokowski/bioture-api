@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Infrastructure\Repository;
 
 use Bioture\Exam\Domain\Model\ExamAttempt;

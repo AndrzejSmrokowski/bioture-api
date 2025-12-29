@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Story;
 
 use Bioture\Exam\Domain\Model\Enum\AnswerFormat;

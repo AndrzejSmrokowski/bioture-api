@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bioture\Exam\Domain\Model;
 
 use Bioture\Exam\Domain\Model\Enum\ExamAttemptStatus;
@@ -63,31 +65,51 @@ class ExamAttempt
     }
 
     /**
-     * @param array<string, mixed>|string $payload
+     * @param array<string, mixed>|null $payload
      */
-    public function recordAnswer(TaskItem $taskItem, array|string $payload): StudentAnswer
+    public function recordAnswer(TaskItem $taskItem, ?array $payload, int $schemaVersion = 1, ?string $rawText = null): StudentAnswer
     {
         // Replace existing answer for the same TaskItem (by Code)
         foreach ($this->answers as $existing) {
             if ($existing->getTaskCode()->equals($taskItem->getCode())) {
                 $existing->updatePayload($payload);
+                // Note: Updating schema/rawText on existing answer isn't supported by this simple update method yet.
+                // We'd need setSchemaVersion etc. on StudentAnswer if we wanted updates.
+                // For MVP, we update payload. Ideally we'd replace the whole object or have setters.
                 return $existing;
             }
         }
 
-        $answer = new StudentAnswer($this, $taskItem->getCode(), $payload);
+        $answer = new StudentAnswer($this, $taskItem->getCode(), $payload, $schemaVersion, $rawText);
         $this->answers[] = $answer;
         return $answer;
     }
 
-    public function recordEvaluation(TaskEvaluation $evaluation): self
+    /**
+     * Records an evaluation and marks it as the final one for this task code.
+     * Previous evaluations for the same task become non-final history.
+     */
+    public function finalizeEvaluation(TaskEvaluation $evaluation): self
     {
-        // Replace strategy: Remove existing evaluation for this task code
-        // (Simple strategy A from requirements)
-        $this->evaluations = array_filter(
-            $this->evaluations,
-            fn (TaskEvaluation $e): bool => !$e->getTaskCode()->equals($evaluation->getTaskCode())
-        );
+        if (!$evaluation->isFinal()) {
+            throw new \InvalidArgumentException('Evaluation passed to finalizeEvaluation must be marked as final.');
+        }
+
+        foreach ($this->evaluations as $existing) {
+            if ($existing->getTaskCode()->equals($evaluation->getTaskCode()) && $existing->isFinal()) {
+                // If existing final evaluation has higher priority, reject this new one as final.
+                // Or simply mark the new one as NOT final.
+
+                if ($existing->getPriority() > $evaluation->getPriority()) {
+                    // Downgrade the incoming evaluation
+                    $evaluation->setIsFinal(false);
+                    // Keep existing as final
+                } else {
+                    // Incoming defeats existing
+                    $existing->setIsFinal(false);
+                }
+            }
+        }
 
         $this->evaluations[] = $evaluation;
         return $this;
