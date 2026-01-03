@@ -6,6 +6,8 @@
 /public/bundles/
 /var/
 /vendor/
+/build/
+domain_model_summary.php
 
 ### PHPUnit ###
 /.phpunit.result.cache
