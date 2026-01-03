@@ -8,7 +8,7 @@ use Bioture\Shared\Domain\Service\UuidGenerator;
 
 abstract readonly class Uuid implements \Stringable
 {
-    public function __construct(
+    final public function __construct(
         public string $value
     ) {
         if (!$this->isValidUuid($value)) {
