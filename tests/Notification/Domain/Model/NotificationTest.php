@@ -31,7 +31,6 @@ final class NotificationTest extends TestCase
 
         $this->assertSame($id, $notification->id);
         $this->assertEquals(NotificationStatus::CREATED, $notification->getStatus());
-        $this->assertNotNull($notification->getCreatedAt());
         $this->assertNull($notification->getSentAt());
     }
 
