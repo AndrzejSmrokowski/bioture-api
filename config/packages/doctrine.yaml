@@ -21,12 +21,6 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Exam/Infrastructure/Persistence/Doctrine/Entity'
                 prefix: 'Bioture\Exam\Infrastructure\Persistence\Doctrine\Entity'
                 alias: Exam
-            Notification:
-                type: attribute
-                is_bundle: false
-                dir: '%kernel.project_dir%/src/Notification/Infrastructure/Persistence/Doctrine/Entity'
-                prefix: 'Bioture\Notification\Infrastructure\Persistence\Doctrine\Entity'
-                alias: Notification
         controller_resolver:
             auto_mapping: false
 
