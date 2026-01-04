@@ -59,7 +59,7 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: bioture
+          POSTGRES_DB: bioture_test
           POSTGRES_USER: bioture
           POSTGRES_PASSWORD: secret_password
         ports:
@@ -97,6 +97,11 @@ jobs:
 
       - name: Install Dependencies
         run: composer install --no-progress --prefer-dist
+
+      - name: Create Test Database
+        env:
+          DATABASE_URL: postgresql://bioture:secret_password@127.0.0.1:5432/bioture?serverVersion=16&charset=utf8
+        run: php bin/console doctrine:database:create --env=test --if-not-exists
 
       - name: Run Migrations
         env:
