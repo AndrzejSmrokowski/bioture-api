@@ -110,10 +110,14 @@ final class DoctrineNotificationRepositoryTest extends KernelTestCase
         $updatedNotification = $this->repository->find($id);
 
         $this->assertNotNull($updatedNotification);
-        // Compare timestamps with delta/tolerance if needed, or equality if precise
-        // DateTime equality can be tricky with microseconds and DB roundtrips.
-        // Let's just check status for now.
         $this->assertEquals('sent', $updatedNotification->getStatus()->value);
         $this->assertNotNull($updatedNotification->getSentAt());
+        // Verify timestamp is persisted correctly, allowing 1 second tolerance for DB precision
+        $this->assertEqualsWithDelta(
+            $sentAt->getTimestamp(),
+            $updatedNotification->getSentAt()->getTimestamp(),
+            1,
+            'The sentAt timestamp should be persisted correctly'
+        );
     }
 }
