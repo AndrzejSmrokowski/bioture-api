@@ -76,7 +76,7 @@ final class DoctrineNotificationRepositoryTest extends KernelTestCase
             $this->entityManager->clear();
         }
 
-        $foundNotification = $this->repository->find($id);
+        $foundNotification = $this->repository->get($id);
 
         $this->assertNotNull($foundNotification);
         $this->assertTrue($foundNotification->getId()->equals($id));
@@ -107,7 +107,7 @@ final class DoctrineNotificationRepositoryTest extends KernelTestCase
             $this->entityManager->clear();
         }
 
-        $updatedNotification = $this->repository->find($id);
+        $updatedNotification = $this->repository->get($id);
 
         $this->assertNotNull($updatedNotification);
         // Compare timestamps with delta/tolerance if needed, or equality if precise

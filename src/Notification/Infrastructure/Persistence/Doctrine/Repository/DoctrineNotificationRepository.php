@@ -42,7 +42,7 @@ final readonly class DoctrineNotificationRepository implements NotificationRepos
         $this->entityManager->flush();
     }
 
-    public function find(NotificationId $id): ?Notification
+    public function get(NotificationId $id): ?Notification
     {
         $entity = $this->entityManager->find(NotificationEntity::class, (string) $id);
 

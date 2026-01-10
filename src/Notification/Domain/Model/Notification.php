@@ -12,9 +12,14 @@ use Bioture\Notification\Domain\ValueObject\Channel;
 use Bioture\Notification\Domain\ValueObject\NotificationId;
 use Bioture\Notification\Domain\ValueObject\Payload;
 use Bioture\Notification\Domain\ValueObject\EmailRecipient;
+use Bioture\Notification\Domain\Event\NotificationCreated;
+use Bioture\Notification\Domain\Event\NotificationFailed;
+use Bioture\Notification\Domain\Event\NotificationSent;
+use Bioture\Shared\Domain\Aggregate\AggregateRoot;
 
 class Notification
 {
+    use AggregateRoot;
     private NotificationStatus $status = NotificationStatus::CREATED;
     private ?\DateTimeImmutable $sentAt = null;
     private ?\DateTimeImmutable $failedAt = null;
@@ -27,6 +32,14 @@ class Notification
         private readonly Payload $payload,
         private readonly \DateTimeImmutable $createdAt
     ) {
+        $this->record(new NotificationCreated(
+            $id,
+            $type,
+            $recipient,
+            $channel,
+            $payload,
+            $createdAt
+        ));
     }
 
     public function markAsSent(\DateTimeImmutable $sentAt): void
@@ -41,6 +54,8 @@ class Notification
 
         $this->status = NotificationStatus::SENT;
         $this->sentAt = $sentAt;
+
+        $this->record(new NotificationSent($this->id, $sentAt));
     }
 
     public function markAsFailed(\DateTimeImmutable $failedAt): void
@@ -55,6 +70,8 @@ class Notification
 
         $this->status = NotificationStatus::FAILED;
         $this->failedAt = $failedAt;
+
+        $this->record(new NotificationFailed($this->id, $failedAt));
     }
 
     public function getId(): NotificationId
