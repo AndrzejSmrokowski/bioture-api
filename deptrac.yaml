@@ -14,10 +14,39 @@ parameters:
       collectors:
         - type: directory
           value: src/Shared/Infrastructure/.*
+    - name: SharedDomain
+      collectors:
+        - type: directory
+          value: src/Shared/Domain/.*
+    - name: NotificationDomain
+      collectors:
+        - type: directory
+          value: src/Notification/Domain/.*
+    - name: NotificationApplication
+      collectors:
+        - type: directory
+          value: src/Notification/Application/.*
+    - name: NotificationInfrastructure
+      collectors:
+        - type: directory
+          value: src/Notification/Infrastructure/.*
   ruleset:
     ExamDomain:
+      - SharedDomain
       - SharedInfrastructure
     ExamInfrastructure:
       - ExamDomain
+      - SharedDomain
       - SharedInfrastructure
-    SharedInfrastructure: ~
+    SharedInfrastructure:
+      - SharedDomain
+    NotificationDomain:
+      - SharedDomain
+    NotificationApplication:
+      - NotificationDomain
+      - SharedDomain
+    NotificationInfrastructure:
+      - NotificationDomain
+      - NotificationApplication
+      - SharedDomain
+      - SharedInfrastructure
