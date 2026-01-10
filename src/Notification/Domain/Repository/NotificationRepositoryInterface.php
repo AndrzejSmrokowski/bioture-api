@@ -11,5 +11,5 @@ interface NotificationRepositoryInterface
 {
     public function save(Notification $notification): void;
 
-    public function find(NotificationId $id): ?Notification;
+    public function get(NotificationId $id): ?Notification;
 }
